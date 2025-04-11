@@ -14,7 +14,7 @@ public class Users {
 
 	// Define a chave primária da tabela
     @Id
-    // Gera o valor automaticamente com base na estratégia do banco (autoincremento no MySQL)
+    // Gera o valor automaticamente com base na estratégia do banco
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_user;
     

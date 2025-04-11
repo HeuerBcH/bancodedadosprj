@@ -79,7 +79,7 @@ bairro varchar(40) not null,
 cidade varchar(40) not null,
 estado varchar(20) not null,
 CEP varchar(10) not null,
-FAX varchar(40) not null,
+FAX varchar(40),
 telefone varchar(15) not null,
 email varchar(50) not null
 );
