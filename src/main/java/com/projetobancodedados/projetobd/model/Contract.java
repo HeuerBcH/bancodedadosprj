@@ -27,7 +27,7 @@ public class Contract {
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    private Client client;
+    private Cliente client;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")
@@ -78,11 +78,11 @@ public class Contract {
         this.status = status;
     }
 
-    public Client getClient() {
+    public Cliente getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
+    public void setClient(Cliente client) {
         this.client = client;
     }
 
