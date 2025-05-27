@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Gestores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center text-primary">Gerenciamento de Gestores</h1>
+
+    <div class="text-center mb-4">
+        <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Gestores</button>
+    </div>
+
+    <div class="alert alert-warning" id="avisoFuncionario" style="display: block;">
+        <strong>Atenção:</strong> O <b>ID do Gestor</b> deve ser igual ao <b>ID de um Funcionário já cadastrado</b>. Caso contrário, ocorrerá erro!
+    </div>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">Novo Gestor</div>
+        <div class="card-body">
+            <form id="gestorForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="number" class="form-control" id="id_gestor" placeholder="ID do Gestor (igual ao id_funcionario)" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="grupo_gerido" placeholder="Grupo Gerido" maxlength="30" required>
+                    </div>
+                </div>
+                <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
+                <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="listaGestores" class="card shadow-sm d-none">
+        <div class="card-header bg-secondary text-white">Gestores Cadastrados</div>
+        <ul class="list-group list-group-flush" id="gestorList">
+            <!-- Gestores serão inseridos aqui -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/gestor";
+    let gestorEditando = null;
+
+    function carregarGestores() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const gestorList = document.getElementById("gestorList");
+                gestorList.innerHTML = "";
+
+                data.forEach(gestor => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `
+                        <div>
+                            <strong>ID:</strong> ${gestor.idGestor} |
+                            <strong>Grupo Gerido:</strong> ${gestor.grupoGerido}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarGestor(${gestor.idGestor})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deletarGestor(${gestor.idGestor})">Excluir</button>
+                        </div>
+                    `;
+                    gestorList.appendChild(li);
+                });
+            });
+    }
+
+    function deletarGestor(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarGestores());
+    }
+
+    function editarGestor(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(gestor => {
+                gestorEditando = gestor.idGestor;
+                document.getElementById("id_gestor").value = gestor.idGestor;
+                document.getElementById("id_gestor").readOnly = true;
+                document.getElementById("grupo_gerido").value = gestor.grupoGerido;
+
+                document.querySelector("#gestorForm button").textContent = "Atualizar";
+                document.querySelector(".card-header").textContent = "Editar Gestor";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("gestorForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const gestor = {
+            idGestor: parseInt(document.getElementById("id_gestor").value),
+            grupoGerido: document.getElementById("grupo_gerido").value
+        };
+
+        const method = gestorEditando ? "PUT" : "POST";
+        const url = gestorEditando ? `${apiUrl}/${gestorEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(gestor)
+        })
+        .then(async response => {
+            if (!response.ok) {
+                const msg = await response.text();
+                alert(msg || "Erro ao salvar gestor. Verifique se o ID do gestor existe em Funcionario.");
+            }
+            return response.ok;
+        })
+        .then(ok => {
+            if (ok) {
+                carregarGestores();
+                this.reset();
+                gestorEditando = null;
+                document.getElementById("id_gestor").readOnly = false;
+                document.querySelector("#gestorForm button").textContent = "Cadastrar";
+                document.querySelector(".card-header").textContent = "Novo Gestor";
+                document.getElementById("cancelarBtn").classList.add("d-none");
+            }
+        });
+    });
+
+    function alternarLista() {
+        const lista = document.getElementById("listaGestores");
+        lista.classList.toggle("d-none");
+        if (!lista.classList.contains("d-none")) {
+            carregarGestores();
+        }
+    }
+    function cancelarEdicao() {
+        document.getElementById("gestorForm").reset();
+        gestorEditando = null;
+        document.getElementById("id_gestor").readOnly = false;
+        document.querySelector("#gestorForm button").textContent = "Cadastrar";
+        document.querySelector(".card-header").textContent = "Novo Gestor";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+</script>
+
+</body>
+</html>
