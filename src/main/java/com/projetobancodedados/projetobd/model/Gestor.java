@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Manager {
+public class Gestor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

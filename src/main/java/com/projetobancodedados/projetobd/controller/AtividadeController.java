@@ -1,7 +1,7 @@
 package com.projetobancodedados.projetobd.controller;
 
-import com.projetobancodedados.projetobd.model.Activity;
-import com.projetobancodedados.projetobd.repository.ActivityRepository;
+import com.projetobancodedados.projetobd.model.Atividade;
+import com.projetobancodedados.projetobd.repository.AtividadeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,31 +9,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/activity")
-public class ActivityController {
+@RequestMapping("/atividade")
+public class AtividadeController {
 
     @Autowired
-    private ActivityRepository activityRepository;
+    private AtividadeRepository activityRepository;
 
     @GetMapping
-    public List<Activity> getAllActivities() {
+    public List<Atividade> getAllActivities() {
         return activityRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Activity> getActivityById(@PathVariable Integer id) {
+    public ResponseEntity<Atividade> getActivityById(@PathVariable Integer id) {
         return activityRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Activity createActivity(@RequestBody Activity activity) {
+    public Atividade createActivity(@RequestBody Atividade activity) {
         return activityRepository.save(activity);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Activity> updateActivity(@PathVariable Integer id, @RequestBody Activity updated) {
+    public ResponseEntity<Atividade> updateActivity(@PathVariable Integer id, @RequestBody Atividade updated) {
         return activityRepository.findById(id).map(activity -> {
             activity.setDescription(updated.getDescription());
             activity.setInternal(updated.getInternal());

@@ -1,7 +1,7 @@
 package com.projetobancodedados.projetobd.controller;
 
-import com.projetobancodedados.projetobd.model.Manager;
-import com.projetobancodedados.projetobd.repository.ManagerRepository;
+import com.projetobancodedados.projetobd.model.Gestor;
+import com.projetobancodedados.projetobd.repository.GestorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,31 +9,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/manager")
-public class ManagerController {
+@RequestMapping("/gestor")
+public class GestorController {
 
     @Autowired
-    private ManagerRepository managerRepository;
+    private GestorRepository managerRepository;
 
     @GetMapping
-    public List<Manager> getAllManagers() {
+    public List<Gestor> getAllManagers() {
         return managerRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Manager> getManagerById(@PathVariable Integer id) {
+    public ResponseEntity<Gestor> getManagerById(@PathVariable Integer id) {
         return managerRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Manager createManager(@RequestBody Manager manager) {
+    public Gestor createManager(@RequestBody Gestor manager) {
         return managerRepository.save(manager);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Manager> updateManager(@PathVariable Integer id, @RequestBody Manager updated) {
+    public ResponseEntity<Gestor> updateManager(@PathVariable Integer id, @RequestBody Gestor updated) {
         return managerRepository.findById(id).map(manager -> {
             manager.setManagerGroup(updated.getManagerGroup());
             return ResponseEntity.ok(managerRepository.save(manager));

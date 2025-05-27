@@ -1,7 +1,7 @@
 package com.projetobancodedados.projetobd.controller;
 
-import com.projetobancodedados.projetobd.model.Employee;
-import com.projetobancodedados.projetobd.repository.EmployeeRepository;
+import com.projetobancodedados.projetobd.model.Funcionario;
+import com.projetobancodedados.projetobd.repository.FuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,31 +9,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/employee")
-public class EmployeeController {
+@RequestMapping("/funcionario")
+public class FuncionarioController {
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private FuncionarioRepository employeeRepository;
 
     @GetMapping
-    public List<Employee> getAllEmployees() {
+    public List<Funcionario> getAllEmployees() {
         return employeeRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id) {
+    public ResponseEntity<Funcionario> getEmployeeById(@PathVariable Integer id) {
         return employeeRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee) {
+    public Funcionario createEmployee(@RequestBody Funcionario employee) {
         return employeeRepository.save(employee);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Integer id, @RequestBody Employee updated) {
+    public ResponseEntity<Funcionario> updateEmployee(@PathVariable Integer id, @RequestBody Funcionario updated) {
         return employeeRepository.findById(id).map(employee -> {
             employee.setName(updated.getName());
             employee.setUser(updated.getUsers());

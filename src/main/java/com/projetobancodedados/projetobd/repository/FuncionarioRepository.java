@@ -1,9 +1,9 @@
 package com.projetobancodedados.projetobd.repository;
 
-import com.projetobancodedados.projetobd.model.Manager;
+import com.projetobancodedados.projetobd.model.Funcionario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ManagerRepository extends JpaRepository<Manager, Integer> {
+public interface FuncionarioRepository extends JpaRepository<Funcionario, Integer> {
 }

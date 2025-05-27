@@ -1,7 +1,7 @@
 package com.projetobancodedados.projetobd.controller;
 
-import com.projetobancodedados.projetobd.model.Contract;
-import com.projetobancodedados.projetobd.repository.ContractRepository;
+import com.projetobancodedados.projetobd.model.Contrato;
+import com.projetobancodedados.projetobd.repository.ContratoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,31 +9,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/contract")
-public class ContractController {
+@RequestMapping("/contrato")
+public class ContratoController {
 
     @Autowired
-    private ContractRepository contractRepository;
+    private ContratoRepository contractRepository;
 
     @GetMapping
-    public List<Contract> getAllContracts() {
+    public List<Contrato> getAllContracts() {
         return contractRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Contract> getContractById(@PathVariable Integer id) {
+    public ResponseEntity<Contrato> getContractById(@PathVariable Integer id) {
         return contractRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Contract createContract(@RequestBody Contract contract) {
+    public Contrato createContract(@RequestBody Contrato contract) {
         return contractRepository.save(contract);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Contract> updateContract(@PathVariable Integer id, @RequestBody Contract updated) {
+    public ResponseEntity<Contrato> updateContract(@PathVariable Integer id, @RequestBody Contrato updated) {
         return contractRepository.findById(id).map(contract -> {
             contract.setActivityDescription(updated.getActivityDescription());
             contract.setStartDate(updated.getStartDate());

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Employee {
+public class Funcionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
-    private Manager manager;
+    private Gestor manager;
 
     // Manual getters and setters
     public Integer getEmployeeId() {
@@ -47,11 +47,11 @@ public class Employee {
         this.users = users;
     }
 
-    public Manager getManager() {
+    public Gestor getManager() {
         return manager;
     }
 
-    public void setManager(Manager manager) {
+    public void setManager(Gestor manager) {
         this.manager = manager;
     }
 }

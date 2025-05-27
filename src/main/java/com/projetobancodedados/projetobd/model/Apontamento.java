@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "timesheet")
-public class Timesheet {
+public class Apontamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,15 +26,15 @@ public class Timesheet {
 
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    private Funcionario employee;
 
     @ManyToOne
     @JoinColumn(name = "activity_id", nullable = false)
-    private Activity activity;
+    private Atividade activity;
 
     @ManyToOne
     @JoinColumn(name = "contract_id", nullable = false)
-    private Contract contract;
+    private Contrato contract;
 
     // Getters e Setters
 
@@ -78,27 +78,27 @@ public class Timesheet {
         this.date = date;
     }
 
-    public Employee getEmployee() {
+    public Funcionario getEmployee() {
         return employee;
     }
 
-    public void setEmployee(Employee employee) {
+    public void setEmployee(Funcionario employee) {
         this.employee = employee;
     }
 
-    public Activity getActivity() {
+    public Atividade getActivity() {
         return activity;
     }
 
-    public void setActivity(Activity activity) {
+    public void setActivity(Atividade activity) {
         this.activity = activity;
     }
 
-    public Contract getContract() {
+    public Contrato getContract() {
         return contract;
     }
 
-    public void setContract(Contract contract) {
+    public void setContract(Contrato contract) {
         this.contract = contract;
     }
 }

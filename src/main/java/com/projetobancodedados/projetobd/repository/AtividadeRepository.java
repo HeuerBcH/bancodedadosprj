@@ -1,9 +1,9 @@
 package com.projetobancodedados.projetobd.repository;
 
-import com.projetobancodedados.projetobd.model.Contract;
+import com.projetobancodedados.projetobd.model.Atividade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContractRepository extends JpaRepository<Contract, Integer> {
+public interface AtividadeRepository extends JpaRepository<Atividade, Integer> {
 }

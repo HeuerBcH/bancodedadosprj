@@ -1,9 +1,9 @@
 package com.projetobancodedados.projetobd.repository;
 
-import com.projetobancodedados.projetobd.model.Employee;
+import com.projetobancodedados.projetobd.model.Apontamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+public interface ApontamentoRepository extends JpaRepository<Apontamento, Integer> {
 }

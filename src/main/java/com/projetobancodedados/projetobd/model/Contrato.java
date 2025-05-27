@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Data
-public class Contract {
+public class Contrato {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +31,11 @@ public class Contract {
 
     @ManyToOne
     @JoinColumn(name = "employee_id")
-    private Employee employee;
+    private Funcionario employee;
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
-    private Manager manager;
+    private Gestor manager;
 
     // Getters and setters manuais
     public Integer getContractId() {
@@ -86,19 +86,19 @@ public class Contract {
         this.client = client;
     }
 
-    public Employee getEmployee() {
+    public Funcionario getEmployee() {
         return employee;
     }
 
-    public void setEmployee(Employee employee) {
+    public void setEmployee(Funcionario employee) {
         this.employee = employee;
     }
 
-    public Manager getManager() {
+    public Gestor getManager() {
         return manager;
     }
 
-    public void setManager(Manager manager) {
+    public void setManager(Gestor manager) {
         this.manager = manager;
     }
 }
