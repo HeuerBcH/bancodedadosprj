@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Davisory - Sistema de Gestão</title>
+    <link rel="icon" type="image/png" href="/images/oculos.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/inicio.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>Davisory</h2>
+            <p>Sistema de Gestão</p>
+        </div>
+        <nav class="nav">
+            <a href="/clientes"><i class="fas fa-user"></i> Clientes</a>
+            <a href="/funcionarios"><i class="fas fa-users"></i> Funcionários</a>
+            <a href="/produtos"><i class="fas fa-glasses"></i> Produtos</a>
+            <a href="/pedidos"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+            <a href="/estoque"><i class="fas fa-boxes"></i> Estoques</a>
+            <a href="/fornecedores"><i class="fas fa-truck"></i> Fornecedores</a>
+            <a href="/materia_prima"><i class="fas fa-cubes"></i> Matéria Prima</a>
+            <a href="/atendimentos"><i class="fas fa-headset"></i> Atendimentos</a>
+            <a href="/solicitacoes"><i class="fas fa-file-alt"></i> Solicitações</a>
+            <a href="/montagens"><i class="fas fa-tools"></i> Montagem</a>
+            <a href="/chefes"><i class="fas fa-sitemap"></i> Hierarquia</a>
+            <a href="/enderecos"><i class="fas fa-map-marker-alt"></i> Endereços</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div id="mensagem-erro" style="display: none; background-color: #ffcdd2; color: #b71c1c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;"></div>
+
+        <header class="main-header">
+            <h1>Bem-vindo ao Sistema de Gestão Davisory</h1>
+        </header>
+
+        <section class="dashboard">
+            <h2>Módulos Disponíveis</h2>
+            <p>Escolha um módulo na barra lateral para começar.</p>
+
+            <div class="cards-dashboard">
+                <div class="card">
+                    <h3>Total de Clientes</h3>
+                    <p id="total-clientes">--</p>
+                </div>
+                <div class="card">
+                    <h3>Total de Pedidos</h3>
+                    <p id="total-pedidos">--</p>
+                </div>
+                <div class="card">
+                    <h3>Produto mais Vendido</h3>
+                    <p id="mais-vendido">--</p>
+                </div>
+                <div class="card">
+                    <h3>Funcionários Ativos</h3>
+                    <p id="total-funcionarios">--</p>
+                </div>
+                <div class="card">
+                    <h3>Total de Produtos</h3>
+                    <p id="total-produtos">--</p>
+                </div>
+            </div>
+        </section>
+        <br>
+        <section class="dashboard">
+            <form id="filtro-dashboard" style="margin-top: 2rem;">
+                <label for="entidade">Selecionar módulo:</label>
+                <select id="entidade" name="entidade">
+                    <option value="pedidos">Pedidos</option>
+                    <option value="atendimentos">Atendimentos</option>
+                </select>
+
+                <label for="tipoGrafico" style="margin-left: 1rem;">Tipo de gráfico:</label>
+                <select id="tipoGrafico" name="tipoGrafico">
+                    <option value="bar">Barras</option>
+                    <option value="line">Linha</option>
+                    <option value="pie">Pizza</option>
+                </select>
+
+                <label for="dataInicio" style="margin-left: 1rem;">De:</label>
+                <input type="date" id="dataInicio" name="dataInicio">
+
+                <label for="dataFim" style="margin-left: 1rem;">Até:</label>
+                <input type="date" id="dataFim" name="dataFim">
+
+                <button type="submit" style="margin-left: 1rem;">Aplicar</button>
+            </form>
+
+            <div id="loader" class="loader-container" style="display: none;">
+                <div class="spinner"></div>
+            </div>            
+
+            <canvas id="graficoEstoque" width="600" height="300" style="margin-top: 2rem;"></canvas>
+        </section>
+    </main>
+</div>
+
+<script>
+    async function carregarResumoDashboard() {
+        try {
+            const resposta = await fetch('/dashboard/resumo');
+            const dados = await resposta.json();
+
+            document.getElementById('total-clientes').textContent = dados.totalClientes;
+            document.getElementById('total-pedidos').textContent = dados.totalPedidos;
+            document.getElementById('mais-vendido').textContent = dados.produtoMaisVendido;
+            document.getElementById('total-funcionarios').textContent = dados.totalFuncionariosAtivos;
+            document.getElementById('total-produtos').textContent = dados.totalProdutos;
+        } catch (erro) {
+            console.error('Erro ao carregar o resumo:', erro);
+        }
+    }
+
+    function mostrarErro(mensagem) {
+        const erroDiv = document.getElementById('mensagem-erro');
+        erroDiv.innerText = mensagem;
+        erroDiv.style.display = 'block';
+
+        setTimeout(() => {
+            erroDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    let chart; // Gráfico global
+
+    function desenharGrafico(dados, tipo) {
+        const ctx = document.getElementById('graficoEstoque').getContext('2d');
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: dados.labels,
+                datasets: [{
+                    label: dados.label,
+                    data: dados.valores,
+                    backgroundColor: ['#0d47a1', '#1976d2', '#42a5f5', '#90caf9', '#e3f2fd'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: tipo !== 'pie' ? {
+                    y: { beginAtZero: true }
+                } : {}
+            }
+        });
+    }
+
+    document.getElementById('filtro-dashboard').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const entidade = document.getElementById('entidade').value;
+        const tipoGrafico = document.getElementById('tipoGrafico').value;
+        const dataInicio = document.getElementById('dataInicio').value;
+        const dataFim = document.getElementById('dataFim').value;
+
+        if (!dataInicio || !dataFim) {
+            mostrarErro('Por favor, selecione um intervalo de datas válido.');
+            return;
+        }
+        if (new Date(dataInicio) > new Date(dataFim)) {
+            mostrarErro('A data de início deve ser anterior à data de fim.');
+            return;
+        }
+
+        document.getElementById('loader').style.display = 'block';
+
+        fetch(`/dashboard/dados?entidade=${entidade}&tipo=${tipoGrafico}&inicio=${dataInicio}&fim=${dataFim}`)
+            .then(response => response.json())
+            .then(dados => {
+                document.getElementById('loader').style.display = 'none';
+
+                if (dados.erro) {
+                    mostrarErro(dados.erro);
+                } else {
+                    desenharGrafico(dados, tipoGrafico);
+                }
+            })
+            .catch(() => {
+                document.getElementById('loader').style.display = 'none';
+                mostrarErro("Erro ao buscar dados. Tente novamente.");
+            });
+    });
+
+    window.onload = carregarResumoDashboard;
+</script>
+
+</body>
+</html>
