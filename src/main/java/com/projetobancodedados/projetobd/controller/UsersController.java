@@ -1,6 +1,8 @@
 package com.projetobancodedados.projetobd.controller;
 
+import com.projetobancodedados.projetobd.model.Funcionario;
 import com.projetobancodedados.projetobd.model.Users;
+import com.projetobancodedados.projetobd.repository.FuncionarioRepository;
 import com.projetobancodedados.projetobd.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,9 @@ public class UsersController {
     @Autowired
     private UsersRepository usersRepository;
     
+    @Autowired
+    private FuncionarioRepository funcionarioRepository;
+    
     // Retorna a lista de todos os usuários
     @GetMapping
     public List<Users> getAllUsers() {
@@ -35,8 +40,16 @@ public class UsersController {
     
     // Cria um novo usuário
     @PostMapping
-    public Users createUser(@RequestBody Users user) {
-        return usersRepository.save(user);
+    public ResponseEntity<Users> createUser(@RequestBody Users usuario) {
+        Users novoUsuario = usersRepository.save(usuario);
+
+        // Cria e salva o funcionário correspondente
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNome(novoUsuario.getUsername());
+        funcionario.setFkUsersIdUser(novoUsuario.getId_user());
+        funcionarioRepository.save(funcionario);
+
+        return ResponseEntity.ok(novoUsuario);
     }
     
     // Atualiza os dados de um usuário existente

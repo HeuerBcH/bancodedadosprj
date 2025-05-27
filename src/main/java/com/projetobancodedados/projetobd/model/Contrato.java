@@ -1,104 +1,64 @@
 package com.projetobancodedados.projetobd.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.util.Date;
 
 @Entity
-@Data
 public class Contrato {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer contractId;
+    private Integer id_contrato;
+
+    @Column(nullable = false, length = 255)
+    private String obj_contratado;
 
     @Column(nullable = false)
-    private String activityDescription;
-
     @Temporal(TemporalType.DATE)
-    private Date startDate;
-
-    @Temporal(TemporalType.DATE)
-    private Date endDate;
+    private Date data_inicio;
 
     @Column(nullable = false)
-    private String status;
+    @Temporal(TemporalType.DATE)
+    private Date data_fim;
+
+    @Column(nullable = false, length = 50)
+    private String estado;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Cliente client;
+    @JoinColumn(name = "fk_Cliente_id_cliente", nullable = false)
+    private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Funcionario employee;
+    @JoinColumn(name = "fk_Funcionario_id_funcionario", nullable = false)
+    private Funcionario funcionario;
 
     @ManyToOne
-    @JoinColumn(name = "manager_id")
-    private Gestor manager;
+    @JoinColumn(name = "fk_Gestor_id_gestor", nullable = false)
+    private Gestor gestor;
 
-    // Getters and setters manuais
-    public Integer getContractId() {
-        return contractId;
-    }
+    // Getters e Setters
 
-    public void setContractId(Integer contractId) {
-        this.contractId = contractId;
-    }
+    public Integer getId_contrato() { return id_contrato; }
+    public void setId_contrato(Integer id_contrato) { this.id_contrato = id_contrato; }
 
-    public String getActivityDescription() {
-        return activityDescription;
-    }
+    public String getObj_contratado() { return obj_contratado; }
+    public void setObj_contratado(String obj_contratado) { this.obj_contratado = obj_contratado; }
 
-    public void setActivityDescription(String activityDescription) {
-        this.activityDescription = activityDescription;
-    }
+    public Date getData_inicio() { return data_inicio; }
+    public void setData_inicio(Date data_inicio) { this.data_inicio = data_inicio; }
 
-    public Date getStartDate() {
-        return startDate;
-    }
+    public Date getData_fim() { return data_fim; }
+    public void setData_fim(Date data_fim) { this.data_fim = data_fim; }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public Date getEndDate() {
-        return endDate;
-    }
+    public Cliente getCliente() { return cliente; }
+    public void setCliente(Cliente cliente) { this.cliente = cliente; }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
+    public Funcionario getFuncionario() { return funcionario; }
+    public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Cliente getClient() {
-        return client;
-    }
-
-    public void setClient(Cliente client) {
-        this.client = client;
-    }
-
-    public Funcionario getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Funcionario employee) {
-        this.employee = employee;
-    }
-
-    public Gestor getManager() {
-        return manager;
-    }
-
-    public void setManager(Gestor manager) {
-        this.manager = manager;
-    }
+    public Gestor getGestor() { return gestor; }
+    public void setGestor(Gestor gestor) { this.gestor = gestor; }
 }

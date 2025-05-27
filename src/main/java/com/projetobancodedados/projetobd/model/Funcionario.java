@@ -1,45 +1,45 @@
 package com.projetobancodedados.projetobd.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-@Data
 public class Funcionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_funcionario")
-    private Integer idFuncionario;
+    private Integer id_funcionario;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_users_id_user", nullable = false)
-    private Users users;
+    @JsonProperty("fk_users_id_user")
+    @Column(name = "fk_users_id_user", nullable = false)
+    private Integer fkUsersIdUser;
 
-    @Column(name = "nome", nullable = false, length = 45)
+    @Column(name = "nome", length = 45)
     private String nome;
 
-    // Manual getters and setters
-    public Integer getIdFuncionario() {
-        return idFuncionario;
+    // Se quiser mapear a relação com Users (opcional, mas recomendado):
+    // @ManyToOne
+    // @JoinColumn(name = "fk_users_id_user", referencedColumnName = "id_user", insertable = false, updatable = false)
+    // private Users user;
+
+    // -------------------
+    public Integer getId_funcionario() {
+        return id_funcionario;
+    }
+    public void setId_funcionario(Integer id_funcionario) {
+        this.id_funcionario = id_funcionario;
     }
 
-    public void setIdFuncionario(Integer idFuncionario) {
-        this.idFuncionario = idFuncionario;
+    public Integer getFkUsersIdUser() {
+        return fkUsersIdUser;
     }
-
-    public Users getUsers() {
-        return users;
-    }
-
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setFkUsersIdUser(Integer fkUsersIdUser) {
+        this.fkUsersIdUser = fkUsersIdUser;
     }
 
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }

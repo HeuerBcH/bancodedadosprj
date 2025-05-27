@@ -11,10 +11,10 @@ public class Atividade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_atividade;
 
-    @Column(name = "description", nullable = false, length = 400)
+    @Column(name = "descricao", nullable = false, length = 400)
     private String descricao;
 
-    @Column(name = "internal", nullable = false)
+    @Column(name = "interna", nullable = false)
     private Boolean interna;
 
     // -------------------

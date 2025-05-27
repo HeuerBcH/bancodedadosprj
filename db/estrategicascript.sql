@@ -93,10 +93,10 @@ create table Contrato (
     fk_Cliente_id_cliente integer not null,
     fk_Funcionario_id_funcionario integer not null,
     fk_Gestor_id_gestor integer not null,
-	FOREIGN KEY (fk_Cliente_id_cliente) REFERENCES Cliente(id_cliente)
-	ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY (fk_Gestor_id_gestor) REFERENCES Gestor(id_gestor)
-	ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY (fk_Funcionario_id_funcionario) REFERENCES Funcionario(id_funcionario)
-	ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (fk_Cliente_id_cliente) REFERENCES Cliente(id_cliente)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (fk_Gestor_id_gestor) REFERENCES Gestor(id_gestor)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (fk_Funcionario_id_funcionario) REFERENCES Funcionario(id_funcionario)
+    ON DELETE CASCADE ON UPDATE CASCADE
 );

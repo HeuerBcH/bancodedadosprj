@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Contratos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center text-primary">Gerenciamento de Contratos</h1>
+
+    <!-- Botão de visualização da lista -->
+    <div class="text-center mb-4">
+        <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Contratos</button>
+    </div>
+
+    <!-- Formulário -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">Novo Contrato</div>
+        <div class="card-body">
+            <form id="contratoForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="obj_contratado" placeholder="Objeto Contratado" maxlength="255" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="data_inicio" placeholder="Data de Início" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="data_fim" placeholder="Data de Fim" required>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="estado" placeholder="Estado do Contrato" maxlength="50" required>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" id="cliente_id" placeholder="ID do Cliente" required>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" id="funcionario_id" placeholder="ID do Funcionário" required>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" id="gestor_id" placeholder="ID do Gestor" required>
+                    </div>
+                </div>
+                <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
+                <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de contratos (oculta inicialmente) -->
+    <div id="listaContratos" class="card shadow-sm d-none">
+        <div class="card-header bg-secondary text-white">Contratos Cadastrados</div>
+        <ul class="list-group list-group-flush" id="contratoList">
+            <!-- Contratos serão inseridos aqui -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/contrato";
+    let contratoEditando = null;
+
+    function carregarContratos() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const contratoList = document.getElementById("contratoList");
+                contratoList.innerHTML = "";
+
+                data.forEach(contrato => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `
+                        <div>
+                            <strong>ID:</strong> ${contrato.id_contrato} |
+                            <strong>Objeto:</strong> ${contrato.obj_contratado} |
+                            <strong>Início:</strong> ${contrato.data_inicio} |
+                            <strong>Fim:</strong> ${contrato.data_fim} |
+                            <strong>Estado:</strong> ${contrato.estado} |
+                            <strong>Cliente:</strong> ${contrato.cliente ? contrato.cliente.id_cliente : ''} |
+                            <strong>Funcionário:</strong> ${contrato.funcionario ? contrato.funcionario.id_funcionario : ''} |
+                            <strong>Gestor:</strong> ${contrato.gestor ? contrato.gestor.id_gestor : ''}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarContrato(${contrato.id_contrato})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deletarContrato(${contrato.id_contrato})">Excluir</button>
+                        </div>
+                    `;
+                    contratoList.appendChild(li);
+                });
+            });
+    }
+
+    function deletarContrato(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarContratos());
+    }
+
+    function editarContrato(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(contrato => {
+                contratoEditando = contrato.id_contrato;
+                document.getElementById("obj_contratado").value = contrato.obj_contratado;
+                document.getElementById("data_inicio").value = contrato.data_inicio;
+                document.getElementById("data_fim").value = contrato.data_fim;
+                document.getElementById("estado").value = contrato.estado;
+                document.getElementById("cliente_id").value = contrato.cliente ? contrato.cliente.id_cliente : '';
+                document.getElementById("funcionario_id").value = contrato.funcionario ? contrato.funcionario.id_funcionario : '';
+                document.getElementById("gestor_id").value = contrato.gestor ? contrato.gestor.id_gestor : '';
+
+                document.querySelector("#contratoForm button").textContent = "Atualizar";
+                document.querySelector(".card-header").textContent = "Editar Contrato";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("contratoForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Monta objetos mínimos para as FK
+        const cliente = { id_cliente: parseInt(document.getElementById("cliente_id").value) };
+        const funcionario = { id_funcionario: parseInt(document.getElementById("funcionario_id").value) };
+        const gestor = { id_gestor: parseInt(document.getElementById("gestor_id").value) };
+
+        const contrato = {
+            obj_contratado: document.getElementById("obj_contratado").value,
+            data_inicio: document.getElementById("data_inicio").value,
+            data_fim: document.getElementById("data_fim").value,
+            estado: document.getElementById("estado").value,
+            cliente: cliente,
+            funcionario: funcionario,
+            gestor: gestor
+        };
+
+        const method = contratoEditando ? "PUT" : "POST";
+        const url = contratoEditando ? `${apiUrl}/${contratoEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(contrato)
+        }).then(() => {
+            carregarContratos();
+            this.reset();
+            contratoEditando = null;
+            document.querySelector("#contratoForm button").textContent = "Cadastrar";
+            document.querySelector(".card-header").textContent = "Novo Contrato";
+            document.getElementById("cancelarBtn").classList.add("d-none");
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("contratoForm").reset();
+        contratoEditando = null;
+
+        document.querySelector("#contratoForm button").textContent = "Cadastrar";
+        document.querySelector(".card-header").textContent = "Novo Contrato";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    function alternarLista() {
+        const lista = document.getElementById("listaContratos");
+        lista.classList.toggle("d-none");
+        if (!lista.classList.contains("d-none")) {
+            carregarContratos();
+        }
+    }
+</script>
+
+</body>
+</html>

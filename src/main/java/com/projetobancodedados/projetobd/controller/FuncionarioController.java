@@ -27,25 +27,5 @@ public class FuncionarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Funcionario createEmployee(@RequestBody Funcionario employee) {
-        return employeeRepository.save(employee);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Funcionario> updateEmployee(@PathVariable Integer id, @RequestBody Funcionario updated) {
-        return employeeRepository.findById(id).map(employee -> {
-            employee.setNome(updated.getNome());
-            employee.setUsers(updated.getUsers());
-            return ResponseEntity.ok(employeeRepository.save(employee));
-        }).orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Integer id) {
-        return employeeRepository.findById(id).map(employee -> {
-            employeeRepository.delete(employee);
-            return ResponseEntity.noContent().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
-    }
+    // Métodos de criação, atualização e exclusão removidos.
 }
