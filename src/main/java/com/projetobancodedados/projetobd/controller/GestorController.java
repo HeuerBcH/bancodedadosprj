@@ -13,37 +13,37 @@ import java.util.List;
 public class GestorController {
 
     @Autowired
-    private GestorRepository managerRepository;
+    private GestorRepository gestorRepository;
 
     @GetMapping
-    public List<Gestor> getAllManagers() {
-        return managerRepository.findAll();
+    public List<Gestor> getAllGestores() {
+        return gestorRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Gestor> getManagerById(@PathVariable Integer id) {
-        return managerRepository.findById(id)
+    public ResponseEntity<Gestor> getGestorById(@PathVariable Integer id) {
+        return gestorRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Gestor createManager(@RequestBody Gestor manager) {
-        return managerRepository.save(manager);
+    public Gestor createGestor(@RequestBody Gestor gestor) {
+        return gestorRepository.save(gestor);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Gestor> updateManager(@PathVariable Integer id, @RequestBody Gestor updated) {
-        return managerRepository.findById(id).map(manager -> {
-            manager.setManagerGroup(updated.getManagerGroup());
-            return ResponseEntity.ok(managerRepository.save(manager));
+    public ResponseEntity<Gestor> updateGestor(@PathVariable Integer id, @RequestBody Gestor updated) {
+        return gestorRepository.findById(id).map(gestor -> {
+            gestor.setGrupoGerido(updated.getGrupoGerido());
+            return ResponseEntity.ok(gestorRepository.save(gestor));
         }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteManager(@PathVariable Integer id) {
-        return managerRepository.findById(id).map(manager -> {
-            managerRepository.delete(manager);
+    public ResponseEntity<Void> deleteGestor(@PathVariable Integer id) {
+        return gestorRepository.findById(id).map(gestor -> {
+            gestorRepository.delete(gestor);
             return ResponseEntity.noContent().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
     }

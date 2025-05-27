@@ -1,45 +1,39 @@
 package com.projetobancodedados.projetobd.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+// import lombok.Data;
 
 @Entity
-@Data
+// @Data
 public class Atividade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer activityId;
+    private Integer id_atividade;
 
-    @Column(nullable = false)
-    private String description;
+    @Column(name = "description", nullable = false, length = 400)
+    private String descricao;
 
-    @Column(nullable = false)
-    private Boolean internal;
+    @Column(name = "internal", nullable = false)
+    private Boolean interna;
 
-    // Getters and setters
-    public Integer getActivityId() {
-        return activityId;
+    // -------------------
+    public Integer getId_atividade() {
+        return id_atividade;
     }
-
-    public void setActivityId(Integer activityId) {
-        this.activityId = activityId;
+    public void setId_atividade(Integer id_atividade) {
+        this.id_atividade = id_atividade;
     }
-
-    public String getDescription() {
-        return description;
+    public String getDescricao() {
+        return descricao;
     }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
-
-    public Boolean getInternal() {
-        return internal;
+    public Boolean getInterna() {
+        return interna;
     }
-
-    public void setInternal(Boolean internal) {
-        this.internal = internal;
+    public void setInterna(Boolean interna) {
+        this.interna = interna;
     }
-
 }

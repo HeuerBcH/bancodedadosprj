@@ -35,8 +35,8 @@ public class AtividadeController {
     @PutMapping("/{id}")
     public ResponseEntity<Atividade> updateActivity(@PathVariable Integer id, @RequestBody Atividade updated) {
         return activityRepository.findById(id).map(activity -> {
-            activity.setDescription(updated.getDescription());
-            activity.setInternal(updated.getInternal());
+            activity.setDescricao(updated.getDescricao());
+            activity.setInterna(updated.getInterna());
             return ResponseEntity.ok(activityRepository.save(activity));
         }).orElse(ResponseEntity.notFound().build());
     }

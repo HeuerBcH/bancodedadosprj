@@ -35,9 +35,8 @@ public class FuncionarioController {
     @PutMapping("/{id}")
     public ResponseEntity<Funcionario> updateEmployee(@PathVariable Integer id, @RequestBody Funcionario updated) {
         return employeeRepository.findById(id).map(employee -> {
-            employee.setName(updated.getName());
-            employee.setUser(updated.getUsers());
-            employee.setManager(updated.getManager());
+            employee.setNome(updated.getNome());
+            employee.setUsers(updated.getUsers());
             return ResponseEntity.ok(employeeRepository.save(employee));
         }).orElse(ResponseEntity.notFound().build());
     }
