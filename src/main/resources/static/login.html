@@ -54,6 +54,7 @@
             const resp = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // <-- ADICIONE ESTA LINHA
                 body: JSON.stringify({ email, senha })
             });
             if (resp.ok) {
