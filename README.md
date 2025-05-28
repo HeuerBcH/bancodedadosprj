@@ -6,7 +6,7 @@
 <p>Relatório: https://docs.google.com/document/d/1W5QCMMqd8JlmWybkLa7W4_cX6yY7yZ8nUd0zSgARnQk/edit?tab=t.0#heading=h.foworgbu7jzd</p>
 
 ## ✅ Como Inicializar
-<p>Maven</p>
+<p>Maven ajustado no PATH das Variáveis de Ambiente do Sistema</p>
 
 <p>Coloque o arquivo estrategicascript.sql no seu Workspace MySQL</p>
 <p>Conecte seu DBeaver com a aplicação colocando o seguinte comando no terminal</p>
