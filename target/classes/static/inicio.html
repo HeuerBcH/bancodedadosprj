@@ -11,6 +11,19 @@
     <link rel="stylesheet" href="/inicio.css">
 </head>
 <body>
+<script>
+    // Verifica autenticação antes de mostrar a página
+    (async function() {
+        try {
+            const resp = await fetch('/api/auth/check', { credentials: 'include' });
+            if (!resp.ok) {
+                window.location.href = '/login.html';
+            }
+        } catch {
+            window.location.href = '/login.html';
+        }
+    })();
+</script>
 <div class="layout">
     <aside class="sidebar">
         <div class="logo">

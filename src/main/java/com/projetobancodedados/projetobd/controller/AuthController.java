@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 
+import jakarta.servlet.http.HttpSession;
+
 import java.util.Optional;
 
 @RestController
@@ -28,6 +30,16 @@ public class AuthController {
             return ResponseEntity.ok().body("{\"username\":\"" + user.getUsername() + "\"}");
         } else {
             return ResponseEntity.status(401).body("Email ou senha inválidos.");
+        }
+    }
+
+    @GetMapping("/api/auth/check")
+    public ResponseEntity<?> checkAuth(HttpSession session) {
+        // Supondo que você armazene o usuário autenticado na sessão
+        if (session.getAttribute("usuario") != null) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(401).build();
         }
     }
 }
