@@ -2,7 +2,7 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Davisory - Sistema de Gestão</title>
+    <title>Estratégica Engenharia - Sistema de Gestão</title>
     <link rel="icon" type="image/png" href="/images/oculos.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" th:href="@{/css/inicio.css}">
@@ -11,23 +11,10 @@
     <link rel="stylesheet" href="/inicio.css">
 </head>
 <body>
-<script>
-    // Verifica autenticação antes de mostrar a página
-    (async function() {
-        try {
-            const resp = await fetch('/api/auth/check', { credentials: 'include' });
-            if (!resp.ok) {
-                window.location.href = '/login.html';
-            }
-        } catch {
-            window.location.href = '/login.html';
-        }
-    })();
-</script>
 <div class="layout">
     <aside class="sidebar">
         <div class="logo">
-            <h2>Davisory</h2>
+            <h2>Estratégica Engenharia</h2>
             <p>Sistema de Gestão</p>
         </div>
         <nav class="nav">
@@ -41,6 +28,7 @@
             <a href="/contrato-crud.html"><i class="fas fa-headset"></i> Contrato</a>
             <a href="/apontamento-crud.html"><i class="fas fa-cubes"></i> Apontamento</a>
             <a href="/gestor-crud.html"><i class="fas fa-headset"></i> Gestor</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-headset"></i> Funcionários Escala</a>
         </nav>
     </aside>
 
@@ -48,7 +36,7 @@
         <div id="mensagem-erro" style="display: none; background-color: #ffcdd2; color: #b71c1c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;"></div>
 
         <header class="main-header">
-            <h1>Bem-vindo ao Sistema de Gestão Davisory</h1>
+            <h1>Bem-vindo ao Sistema de Gestão Estratégica Engenharia</h1>
         </header>
 
         <section class="dashboard">
