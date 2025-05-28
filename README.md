@@ -10,8 +10,7 @@
 
 <p>Coloque o arquivo estrategicascript.sql no seu Workspace MySQL</p>
 <p>Conecte seu DBeaver com a aplicação colocando o seguinte comando no terminal</p>
-<p>LINUX: export DB_PASSWORD="senha"</p>
-<p>WINDOWS: $env:DB_PASSWORD="senha"</p>
+<p>$env:DB_PASSWORD="senha"</p>
 <p>O campo escrito "senha" deve ser substituído pela sua própria senha</p>
 <p>Rode o arquivo ProjectApplication.java</p>
 <p>Acesse o endereço http://localhost:8081/ no seu navegador</p>
