@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Escalas de Trabalho</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center text-primary">Gerenciamento de Escalas de Trabalho</h1>
+
+    <!-- Botão de visualização da lista -->
+    <div class="text-center mb-4">
+        <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Escalas</button>
+    </div>
+
+    <!-- Formulário -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">Nova Escala de Trabalho</div>
+        <div class="card-body">
+            <form id="escalaForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="number" class="form-control" id="horas_semanais" placeholder="Horas Semanais" min="1" max="100" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="dias_semana" placeholder="Dias da Semana (ex: Segunda, Quarta, Sexta)" maxlength="100" required>
+                    </div>
+                </div>
+                <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
+                <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de escalas (oculta inicialmente) -->
+    <div id="listaEscalas" class="card shadow-sm d-none">
+        <div class="card-header bg-secondary text-white">Escalas Cadastradas</div>
+        <ul class="list-group list-group-flush" id="escalaList">
+            <!-- Escalas serão inseridas aqui -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/escala-de-trabalho";
+    let escalaEditando = null;
+
+    function carregarEscalas() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const escalaList = document.getElementById("escalaList");
+                escalaList.innerHTML = "";
+
+                data.forEach(escala => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `
+                        <div>
+                            <strong>ID:</strong> ${escala.id_escala_de_trabalho} |
+                            <strong>Horas Semanais:</strong> ${escala.horas_semanais} |
+                            <strong>Dias da Semana:</strong> ${escala.dias_semana}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarEscala(${escala.id_escala_de_trabalho})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deletarEscala(${escala.id_escala_de_trabalho})">Excluir</button>
+                        </div>
+                    `;
+                    escalaList.appendChild(li);
+                });
+            });
+    }
+
+    function deletarEscala(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarEscalas());
+    }
+
+    function editarEscala(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(escala => {
+                escalaEditando = escala.id_escala_de_trabalho;
+                document.getElementById("horas_semanais").value = escala.horas_semanais;
+                document.getElementById("dias_semana").value = escala.dias_semana;
+
+                document.querySelector("#escalaForm button").textContent = "Atualizar";
+                document.querySelector(".card-header").textContent = "Editar Escala de Trabalho";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("escalaForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const escala = {
+            horas_semanais: parseInt(document.getElementById("horas_semanais").value),
+            dias_semana: document.getElementById("dias_semana").value
+        };
+
+        const method = escalaEditando ? "PUT" : "POST";
+        const url = escalaEditando ? `${apiUrl}/${escalaEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(escala)
+        }).then(() => {
+            carregarEscalas();
+            this.reset();
+            escalaEditando = null;
+
+            document.querySelector("#escalaForm button").textContent = "Cadastrar";
+            document.querySelector(".card-header").textContent = "Nova Escala de Trabalho";
+            document.getElementById("cancelarBtn").classList.add("d-none");
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("escalaForm").reset();
+        escalaEditando = null;
+
+        document.querySelector("#escalaForm button").textContent = "Cadastrar";
+        document.querySelector(".card-header").textContent = "Nova Escala de Trabalho";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    function alternarLista() {
+        const lista = document.getElementById("listaEscalas");
+        lista.classList.toggle("d-none");
+        if (!lista.classList.contains("d-none")) {
+            carregarEscalas();
+        }
+    }
+</script>
+
+</body>
+</html>

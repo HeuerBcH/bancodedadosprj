@@ -5,100 +5,73 @@ import java.sql.Time;
 import java.util.Date;
 
 @Entity
-@Table(name = "timesheet")
 public class Apontamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer timesheetId;
+    private Integer id_apontamento;
 
-    @Column(name = "start_time")
-    private Time startTime;
+    @Column(nullable = false)
+    private Time hora_inicio;
 
-    @Column(name = "end_time")
-    private Time endTime;
+    @Column(nullable = false)
+    private Time hora_fim;
 
-    @Column(name = "justification_letter")
-    private String justificationLetter;
+    @Column(length = 30)
+    private String centro_de_custo;
 
+    @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private Date data_apontamento;
+
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date data_preenchimento;
+
+    @Column(nullable = false)
+    private Boolean aprovado = false;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Funcionario employee;
+    @JoinColumn(name = "fk_Atividade_id_atividade", nullable = false)
+    private Atividade atividade;
 
     @ManyToOne
-    @JoinColumn(name = "activity_id", nullable = false)
-    private Atividade activity;
+    @JoinColumn(name = "fk_Funcionario_id_funcionario", nullable = false)
+    private Funcionario funcionario;
 
     @ManyToOne
-    @JoinColumn(name = "contract_id", nullable = false)
-    private Contrato contract;
+    @JoinColumn(name = "fk_Feriado_id_feriado", nullable = true)
+    private Feriado feriado;
 
     // Getters e Setters
 
-    public Integer getTimesheetId() {
-        return timesheetId;
-    }
+    public Integer getId_apontamento() { return id_apontamento; }
+    public void setId_apontamento(Integer id_apontamento) { this.id_apontamento = id_apontamento; }
 
-    public void setTimesheetId(Integer timesheetId) {
-        this.timesheetId = timesheetId;
-    }
+    public Time getHora_inicio() { return hora_inicio; }
+    public void setHora_inicio(Time hora_inicio) { this.hora_inicio = hora_inicio; }
 
-    public Time getStartTime() {
-        return startTime;
-    }
+    public Time getHora_fim() { return hora_fim; }
+    public void setHora_fim(Time hora_fim) { this.hora_fim = hora_fim; }
 
-    public void setStartTime(Time startTime) {
-        this.startTime = startTime;
-    }
+    public String getCentro_de_custo() { return centro_de_custo; }
+    public void setCentro_de_custo(String centro_de_custo) { this.centro_de_custo = centro_de_custo; }
 
-    public Time getEndTime() {
-        return endTime;
-    }
+    public Date getData_apontamento() { return data_apontamento; }
+    public void setData_apontamento(Date data_apontamento) { this.data_apontamento = data_apontamento; }
 
-    public void setEndTime(Time endTime) {
-        this.endTime = endTime;
-    }
+    public Date getData_preenchimento() { return data_preenchimento; }
+    public void setData_preenchimento(Date data_preenchimento) { this.data_preenchimento = data_preenchimento; }
 
-    public String getJustificationLetter() {
-        return justificationLetter;
-    }
+    public Boolean getAprovado() { return aprovado; }
+    public void setAprovado(Boolean aprovado) { this.aprovado = aprovado; }
 
-    public void setJustificationLetter(String justificationLetter) {
-        this.justificationLetter = justificationLetter;
-    }
+    public Atividade getAtividade() { return atividade; }
+    public void setAtividade(Atividade atividade) { this.atividade = atividade; }
 
-    public Date getDate() {
-        return date;
-    }
+    public Funcionario getFuncionario() { return funcionario; }
+    public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Funcionario getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Funcionario employee) {
-        this.employee = employee;
-    }
-
-    public Atividade getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Atividade activity) {
-        this.activity = activity;
-    }
-
-    public Contrato getContract() {
-        return contract;
-    }
-
-    public void setContract(Contrato contract) {
-        this.contract = contract;
-    }
+    public Feriado getFeriado() { return feriado; }
+    public void setFeriado(Feriado feriado) { this.feriado = feriado; }
 }

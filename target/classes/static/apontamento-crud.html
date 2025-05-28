@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Apontamentos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center text-primary">Gerenciamento de Apontamentos</h1>
+
+    <div class="text-center mb-4">
+        <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Apontamentos</button>
+    </div>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">Novo Apontamento</div>
+        <div class="card-body">
+            <form id="apontamentoForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="atividade" class="form-label">Atividade</label>
+                        <select class="form-select" id="atividade" required></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="funcionario" class="form-label">Funcionário</label>
+                        <select class="form-select" id="funcionario" required></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="feriado" class="form-label">Feriado (opcional)</label>
+                        <select class="form-select" id="feriado">
+                            <option value="">Nenhum</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="time" class="form-control" id="hora_inicio" placeholder="Hora Início" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="time" class="form-control" id="hora_fim" placeholder="Hora Fim" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="centro_de_custo" placeholder="Centro de Custo">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="data_apontamento" placeholder="Data Apontamento" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="data_preenchimento" placeholder="Data Preenchimento" required>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="aprovado" required>
+                            <option value="false">Não aprovado</option>
+                            <option value="true">Aprovado</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
+                <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="listaApontamentos" class="card shadow-sm d-none">
+        <div class="card-header bg-secondary text-white">Apontamentos Cadastrados</div>
+        <ul class="list-group list-group-flush" id="apontamentoList">
+            <!-- Apontamentos serão inseridos aqui -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/apontamento";
+    const atividadeUrl = "http://localhost:8081/atividade";
+    const funcionarioUrl = "http://localhost:8081/funcionario";
+    const feriadoUrl = "http://localhost:8081/feriado";
+    let apontamentoEditando = null;
+
+    function carregarAtividades() {
+        fetch(atividadeUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("atividade");
+                select.innerHTML = "";
+                data.forEach(atividade => {
+                    const option = document.createElement("option");
+                    option.value = atividade.id_atividade;
+                    option.textContent = `${atividade.id_atividade} - ${atividade.descricao.substring(0, 30)}${atividade.descricao.length > 30 ? '...' : ''}`;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarFuncionarios() {
+        fetch(funcionarioUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("funcionario");
+                select.innerHTML = "";
+                data.forEach(funcionario => {
+                    const option = document.createElement("option");
+                    option.value = funcionario.id_funcionario;
+                    option.textContent = `${funcionario.id_funcionario} - ${funcionario.nome}`;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarFeriados() {
+        fetch(feriadoUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("feriado");
+                select.innerHTML = '<option value="">Nenhum</option>';
+                data.forEach(feriado => {
+                    const option = document.createElement("option");
+                    option.value = feriado.id_feriado;
+                    option.textContent = `${feriado.id_feriado} - ${feriado.nome_feriado}`;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarApontamentos() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const apontamentoList = document.getElementById("apontamentoList");
+                apontamentoList.innerHTML = "";
+
+                data.forEach(apontamento => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `
+                        <div>
+                            <strong>ID:</strong> ${apontamento.id_apontamento} |
+                            <strong>Atividade:</strong> ${apontamento.atividade ? apontamento.atividade.descricao.substring(0, 30) : ''} |
+                            <strong>Funcionário:</strong> ${apontamento.funcionario ? apontamento.funcionario.nome : ''} |
+                            <strong>Feriado:</strong> ${apontamento.feriado ? apontamento.feriado.nome_feriado : 'Nenhum'} |
+                            <strong>Data:</strong> ${apontamento.data_apontamento} |
+                            <strong>Início:</strong> ${apontamento.hora_inicio} |
+                            <strong>Fim:</strong> ${apontamento.hora_fim} |
+                            <strong>Aprovado:</strong> ${apontamento.aprovado ? 'Sim' : 'Não'}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarApontamento(${apontamento.id_apontamento})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deletarApontamento(${apontamento.id_apontamento})">Excluir</button>
+                        </div>
+                    `;
+                    apontamentoList.appendChild(li);
+                });
+            });
+    }
+
+    function deletarApontamento(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarApontamentos());
+    }
+
+    function editarApontamento(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(apontamento => {
+                apontamentoEditando = apontamento.id_apontamento;
+                document.getElementById("hora_inicio").value = apontamento.hora_inicio;
+                document.getElementById("hora_fim").value = apontamento.hora_fim;
+                document.getElementById("centro_de_custo").value = apontamento.centro_de_custo || "";
+                document.getElementById("data_apontamento").value = apontamento.data_apontamento;
+                document.getElementById("data_preenchimento").value = apontamento.data_preenchimento;
+                document.getElementById("aprovado").value = apontamento.aprovado ? "true" : "false";
+                document.getElementById("atividade").value = apontamento.atividade ? apontamento.atividade.id_atividade : "";
+                document.getElementById("funcionario").value = apontamento.funcionario ? apontamento.funcionario.id_funcionario : "";
+                document.getElementById("feriado").value = apontamento.feriado ? apontamento.feriado.id_feriado : "";
+
+                document.querySelector("#apontamentoForm button").textContent = "Atualizar";
+                document.querySelector(".card-header").textContent = "Editar Apontamento";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    function isValidDate(dateStr) {
+        // Regex para yyyy-MM-dd
+        return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+    }
+
+    function padTime(val) {
+        return val.length === 5 ? val + ":00" : val;
+    }
+
+    document.getElementById("apontamentoForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const hora_inicio = document.getElementById("hora_inicio").value;
+        const hora_fim = document.getElementById("hora_fim").value;
+        const data_apontamento = document.getElementById("data_apontamento").value;
+        const data_preenchimento = document.getElementById("data_preenchimento").value;
+
+        // Validação de campos obrigatórios
+        if (!hora_inicio || !hora_fim || !data_apontamento || !data_preenchimento) {
+            alert("Preencha todos os campos obrigatórios.");
+            return;
+        }
+
+        // Validação de formato de data
+        if (!isValidDate(data_apontamento) || !isValidDate(data_preenchimento)) {
+            alert("As datas devem estar no formato AAAA-MM-DD.");
+            return;
+        }
+
+        // Validação de formato de hora
+        if (!/^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/.test(hora_inicio) || !/^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/.test(hora_fim)) {
+            alert("As horas devem estar no formato HH:mm ou HH:mm:ss.");
+            return;
+        }
+
+        const apontamento = {
+            hora_inicio: padTime(hora_inicio),
+            hora_fim: padTime(hora_fim),
+            centro_de_custo: document.getElementById("centro_de_custo").value,
+            data_apontamento: data_apontamento,
+            data_preenchimento: data_preenchimento,
+            aprovado: document.getElementById("aprovado").value === "true",
+            atividade: { id_atividade: parseInt(document.getElementById("atividade").value) },
+            funcionario: { id_funcionario: parseInt(document.getElementById("funcionario").value) }
+        };
+
+        const feriadoValue = document.getElementById("feriado").value;
+        if (feriadoValue) {
+            apontamento.feriado = { id_feriado: parseInt(feriadoValue) };
+        }
+
+        const method = apontamentoEditando ? "PUT" : "POST";
+        const url = apontamentoEditando ? `${apiUrl}/${apontamentoEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(apontamento)
+        }).then(res => {
+            if (res.ok) {
+                carregarApontamentos();
+                this.reset();
+                apontamentoEditando = null;
+                document.querySelector("#apontamentoForm button").textContent = "Cadastrar";
+                document.querySelector(".card-header").textContent = "Novo Apontamento";
+                document.getElementById("cancelarBtn").classList.add("d-none");
+            } else {
+                res.text().then(msg => alert("Erro ao salvar: " + msg));
+            }
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("apontamentoForm").reset();
+        apontamentoEditando = null;
+        document.querySelector("#apontamentoForm button").textContent = "Cadastrar";
+        document.querySelector(".card-header").textContent = "Novo Apontamento";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    function alternarLista() {
+        const lista = document.getElementById("listaApontamentos");
+        lista.classList.toggle("d-none");
+        if (!lista.classList.contains("d-none")) {
+            carregarApontamentos();
+        }
+    }
+
+    // Carregar selects ao abrir a página
+    window.onload = function() {
+        carregarAtividades();
+        carregarFuncionarios();
+        carregarFeriados();
+    };
+</script>
+
+</body>
+</html>

@@ -27,4 +27,12 @@ public class Gestor {
     public void setGrupoGerido(String grupoGerido) {
         this.grupoGerido = grupoGerido;
     }
+
+    public Integer getId_gestor() {
+        return idGestor;
+    }
+
+    public void setId_gestor(Integer id_gestor) {
+        this.idGestor = id_gestor;
+    }
 }

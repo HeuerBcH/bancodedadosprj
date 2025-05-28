@@ -2,75 +2,105 @@ package com.projetobancodedados.projetobd.controller;
 
 import com.projetobancodedados.projetobd.model.Apontamento;
 import com.projetobancodedados.projetobd.repository.ApontamentoRepository;
+import com.projetobancodedados.projetobd.repository.AtividadeRepository;
+import com.projetobancodedados.projetobd.repository.FuncionarioRepository;
+import com.projetobancodedados.projetobd.repository.FeriadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("apontamento")
+@RequestMapping("/apontamento")
 public class ApontamentoController {
 
     @Autowired
-    private ApontamentoRepository timesheetRepository;
+    private ApontamentoRepository apontamentoRepository;
+    @Autowired
+    private AtividadeRepository atividadeRepository;
+    @Autowired
+    private FuncionarioRepository funcionarioRepository;
+    @Autowired
+    private FeriadoRepository feriadoRepository;
 
-    // LISTAR TODOS os timesheets
     @GetMapping
-    public List<Apontamento> getAllTimesheets() {
-        return timesheetRepository.findAll();
+    public List<Apontamento> getAllApontamentos() {
+        return apontamentoRepository.findAll();
     }
 
-    // BUSCAR timesheet por id
     @GetMapping("/{id}")
-    public ResponseEntity<Apontamento> getTimesheetById(@PathVariable Integer id) {
-        Optional<Apontamento> timesheetOpt = timesheetRepository.findById(id);
-        if (timesheetOpt.isPresent()) {
-            return ResponseEntity.ok(timesheetOpt.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Apontamento> getApontamentoById(@PathVariable Integer id) {
+        return apontamentoRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // CRIAR novo timesheet
     @PostMapping
-    public Apontamento createTimesheet(@RequestBody Apontamento timesheet) {
-        return timesheetRepository.save(timesheet);
+    public ResponseEntity<?> createApontamento(@RequestBody Apontamento apontamento) {
+        System.out.println("Recebido apontamento: " + apontamento);
+        System.out.println("Atividade: " + (apontamento.getAtividade() != null ? apontamento.getAtividade().getId_atividade() : "null"));
+        System.out.println("Funcionario: " + (apontamento.getFuncionario() != null ? apontamento.getFuncionario().getId_funcionario() : "null"));
+        System.out.println("Feriado: " + (apontamento.getFeriado() != null ? apontamento.getFeriado().getId_feriado() : "null"));
+
+        if (apontamento.getAtividade() == null || apontamento.getAtividade().getId_atividade() == null) {
+            System.out.println("ID da atividade é obrigatório.");
+            return ResponseEntity.badRequest().body("ID da atividade é obrigatório.");
+        }
+        if (apontamento.getFuncionario() == null || apontamento.getFuncionario().getId_funcionario() == null) {
+            System.out.println("ID do funcionário é obrigatório.");
+            return ResponseEntity.badRequest().body("ID do funcionário é obrigatório.");
+        }
+
+        apontamento.setAtividade(atividadeRepository.findById(apontamento.getAtividade().getId_atividade()).orElse(null));
+        if (apontamento.getAtividade() == null) {
+            System.out.println("Atividade não encontrada.");
+            return ResponseEntity.badRequest().body("Atividade não encontrada.");
+        }
+
+        apontamento.setFuncionario(funcionarioRepository.findById(apontamento.getFuncionario().getId_funcionario()).orElse(null));
+        if (apontamento.getFuncionario() == null) {
+            System.out.println("Funcionário não encontrado.");
+            return ResponseEntity.badRequest().body("Funcionário não encontrado.");
+        }
+
+        if (apontamento.getFeriado() != null && apontamento.getFeriado().getId_feriado() != null) {
+            apontamento.setFeriado(feriadoRepository.findById(apontamento.getFeriado().getId_feriado()).orElse(null));
+            if (apontamento.getFeriado() == null) {
+                System.out.println("Feriado não encontrado.");
+                return ResponseEntity.badRequest().body("Feriado não encontrado.");
+            }
+        } else {
+            apontamento.setFeriado(null);
+        }
+
+        Apontamento salvo = apontamentoRepository.save(apontamento);
+        System.out.println("Apontamento salvo: " + salvo);
+
+        return ResponseEntity.ok(salvo);
     }
 
-    // ATUALIZAR timesheet existente
     @PutMapping("/{id}")
-    public ResponseEntity<Apontamento> updateTimesheet(@PathVariable Integer id, @RequestBody Apontamento timesheetDetails) {
-        Optional<Apontamento> timesheetOpt = timesheetRepository.findById(id);
-        if (!timesheetOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Apontamento timesheet = timesheetOpt.get();
-
-        // Atualiza os campos (usando os setters)
-        timesheet.setStartTime(timesheetDetails.getStartTime());
-        timesheet.setEndTime(timesheetDetails.getEndTime());
-        timesheet.setJustificationLetter(timesheetDetails.getJustificationLetter());
-        timesheet.setDate(timesheetDetails.getDate());
-        timesheet.setEmployee(timesheetDetails.getEmployee());
-        timesheet.setActivity(timesheetDetails.getActivity());
-        timesheet.setContract(timesheetDetails.getContract());
-
-        Apontamento updated = timesheetRepository.save(timesheet);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<Apontamento> updateApontamento(@PathVariable Integer id, @RequestBody Apontamento updated) {
+        return apontamentoRepository.findById(id).map(apontamento -> {
+            apontamento.setHora_inicio(updated.getHora_inicio());
+            apontamento.setHora_fim(updated.getHora_fim());
+            apontamento.setCentro_de_custo(updated.getCentro_de_custo());
+            apontamento.setData_apontamento(updated.getData_apontamento());
+            apontamento.setData_preenchimento(updated.getData_preenchimento());
+            apontamento.setAprovado(updated.getAprovado());
+            apontamento.setAtividade(updated.getAtividade());
+            apontamento.setFuncionario(updated.getFuncionario());
+            apontamento.setFeriado(updated.getFeriado());
+            return ResponseEntity.ok(apontamentoRepository.save(apontamento));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETAR timesheet
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTimesheet(@PathVariable Integer id) {
-        Optional<Apontamento> timesheetOpt = timesheetRepository.findById(id);
-        if (!timesheetOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        timesheetRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteApontamento(@PathVariable Integer id) {
+        return apontamentoRepository.findById(id).map(apontamento -> {
+            apontamentoRepository.delete(apontamento);
+            return ResponseEntity.noContent().<Void>build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

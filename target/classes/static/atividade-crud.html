@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciamento de Atividades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center text-primary">Gerenciamento de Atividades</h1>
+
+    <!-- Botão de visualização da lista -->
+    <div class="text-center mb-4">
+        <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Atividades</button>
+    </div>
+
+    <!-- Formulário -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">Nova Atividade</div>
+        <div class="card-body">
+            <form id="atividadeForm">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="descricao" placeholder="Descrição da Atividade" maxlength="400" required>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="interna" required>
+                            <option value="true">Interna</option>
+                            <option value="false">Externa</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
+                <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de atividades (oculta inicialmente) -->
+    <div id="listaAtividades" class="card shadow-sm d-none">
+        <div class="card-header bg-secondary text-white">Atividades Cadastradas</div>
+        <ul class="list-group list-group-flush" id="atividadeList">
+            <!-- Atividades serão inseridas aqui -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/atividade";
+    let atividadeEditando = null;
+
+    function carregarAtividades() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const atividadeList = document.getElementById("atividadeList");
+                atividadeList.innerHTML = "";
+
+                data.forEach(atividade => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `
+                        <div>
+                            <strong>ID:</strong> ${atividade.id_atividade} |
+                            <strong>Descrição:</strong> ${atividade.descricao} |
+                            <span class="badge bg-${atividade.interna ? 'primary' : 'secondary'}">
+                                ${atividade.interna ? 'Interna' : 'Externa'}
+                            </span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarAtividade(${atividade.id_atividade})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deletarAtividade(${atividade.id_atividade})">Excluir</button>
+                        </div>
+                    `;
+                    atividadeList.appendChild(li);
+                });
+            });
+    }
+
+    function deletarAtividade(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarAtividades());
+    }
+
+    function editarAtividade(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(atividade => {
+                atividadeEditando = atividade.id_atividade;
+                document.getElementById("descricao").value = atividade.descricao;
+                document.getElementById("interna").value = atividade.interna.toString();
+
+                document.querySelector("#atividadeForm button").textContent = "Atualizar";
+                document.querySelector(".card-header").textContent = "Editar Atividade";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("atividadeForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const atividade = {
+            descricao: document.getElementById("descricao").value,
+            interna: document.getElementById("interna").value === "true"
+        };
+
+        const method = atividadeEditando ? "PUT" : "POST";
+        const url = atividadeEditando ? `${apiUrl}/${atividadeEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(atividade)
+        }).then(() => {
+            carregarAtividades();
+            this.reset();
+            atividadeEditando = null;
+
+            document.querySelector("#atividadeForm button").textContent = "Cadastrar";
+            document.querySelector(".card-header").textContent = "Nova Atividade";
+            document.getElementById("cancelarBtn").classList.add("d-none");
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("atividadeForm").reset();
+        atividadeEditando = null;
+
+        document.querySelector("#atividadeForm button").textContent = "Cadastrar";
+        document.querySelector(".card-header").textContent = "Nova Atividade";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    function alternarLista() {
+        const lista = document.getElementById("listaAtividades");
+        lista.classList.toggle("d-none");
+        if (!lista.classList.contains("d-none")) {
+            carregarAtividades();
+        }
+    }
+</script>
+
+</body>
+</html>

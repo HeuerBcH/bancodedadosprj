@@ -51,7 +51,7 @@ data_preenchimento date not null,
 aprovado tinyint(1) not null default 0,
 fk_Atividade_id_atividade int not null,
 fk_Funcionario_id_funcionario int not null,
-fk_Feriado_id_feriado int not null,
+fk_Feriado_id_feriado int null,
 foreign key (fk_Atividade_id_atividade) references Atividade(id_atividade) ON DELETE CASCADE ON UPDATE CASCADE,
 foreign key (fk_Funcionario_id_funcionario) references Funcionario(id_funcionario) ON DELETE CASCADE ON UPDATE CASCADE,
 foreign key (fk_Feriado_id_feriado) references Feriado(id_feriado) ON DELETE CASCADE ON UPDATE CASCADE
@@ -100,3 +100,4 @@ create table Contrato (
     FOREIGN KEY (fk_Funcionario_id_funcionario) REFERENCES Funcionario(id_funcionario)
     ON DELETE CASCADE ON UPDATE CASCADE
 );
+

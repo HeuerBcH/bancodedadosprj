@@ -1,8 +1,8 @@
 package com.projetobancodedados.projetobd.controller;
 
 import com.projetobancodedados.projetobd.model.Contrato;
-import com.projetobancodedados.projetobd.repository.ClienteRepository;
 import com.projetobancodedados.projetobd.repository.ContratoRepository;
+import com.projetobancodedados.projetobd.repository.ClienteRepository;
 import com.projetobancodedados.projetobd.repository.FuncionarioRepository;
 import com.projetobancodedados.projetobd.repository.GestorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class ContratoController {
         if (contrato.getFuncionario() == null || contrato.getFuncionario().getId_funcionario() == null) {
             return ResponseEntity.badRequest().body("ID do funcionário é obrigatório.");
         }
-        if (contrato.getGestor() == null || contrato.getGestor().getIdGestor() == null) {
+        if (contrato.getGestor() == null || contrato.getGestor().getId_gestor() == null) {
             return ResponseEntity.badRequest().body("ID do gestor é obrigatório.");
         }
 
@@ -58,12 +58,13 @@ public class ContratoController {
             return ResponseEntity.badRequest().body("Funcionário não encontrado.");
         }
 
-        contrato.setGestor(gestorRepository.findById(contrato.getGestor().getIdGestor()).orElse(null));
+        contrato.setGestor(gestorRepository.findById(contrato.getGestor().getId_gestor()).orElse(null));
         if (contrato.getGestor() == null) {
             return ResponseEntity.badRequest().body("Gestor não encontrado.");
         }
 
-        return ResponseEntity.ok(contratoRepository.save(contrato));
+        Contrato salvo = contratoRepository.save(contrato);
+        return ResponseEntity.ok(salvo);
     }
 
     @PutMapping("/{id}")
@@ -73,9 +74,20 @@ public class ContratoController {
             contrato.setData_inicio(updated.getData_inicio());
             contrato.setData_fim(updated.getData_fim());
             contrato.setEstado(updated.getEstado());
-            contrato.setCliente(updated.getCliente());
-            contrato.setFuncionario(updated.getFuncionario());
-            contrato.setGestor(updated.getGestor());
+
+            if (updated.getCliente() != null && updated.getCliente().getId_cliente() != null) {
+                clienteRepository.findById(updated.getCliente().getId_cliente())
+                        .ifPresent(contrato::setCliente);
+            }
+            if (updated.getFuncionario() != null && updated.getFuncionario().getId_funcionario() != null) {
+                funcionarioRepository.findById(updated.getFuncionario().getId_funcionario())
+                        .ifPresent(contrato::setFuncionario);
+            }
+            if (updated.getGestor() != null && updated.getGestor().getId_gestor() != null) {
+                gestorRepository.findById(updated.getGestor().getId_gestor())
+                        .ifPresent(contrato::setGestor);
+            }
+
             return ResponseEntity.ok(contratoRepository.save(contrato));
         }).orElse(ResponseEntity.notFound().build());
     }

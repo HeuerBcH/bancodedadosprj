@@ -48,4 +48,13 @@ public class Feriado {
     public void setPermiteLancamento(Boolean permiteLancamento) {
         this.permiteLancamento = permiteLancamento;
     }
+
+    // Métodos adicionais para id_feriado
+    public Integer getId_feriado() {
+        return idFeriado;
+    }
+
+    public void setId_feriado(Integer id_feriado) {
+        this.idFeriado = id_feriado;
+    }
 }
