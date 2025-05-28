@@ -2,24 +2,32 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Davisory - Sistema de Gestão</title>
+    <title>Sistema de Gestão Empresarial</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="stylesheet" type="text/css" th:href="@{/css/paginaLogin.css}">
+    <link rel="stylesheet" href="/login.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <link rel="stylesheet" href="/login.css">
 </head>
 <body>
 
 <header>
-    <h1>Davisory</h1>
-    <p class="subtitulo">Sistema de Gestão de Óticas</p>
+    <img src="/media/imagens/estrategicalogo.png" alt="Estrategica" class="logo-imagem">
 </header>
 
-<main>  
+<main>
     <form id="loginForm" class="form-login" autocomplete="off">
+        <div class="welcome-message">
+            <h2><b>Entrar no Sistema</b></h2>
+            <br>
+        </div>
         <div id="mensagem-erro" class="mensagem-erro" style="display:none;"></div>
-        
+
         <div class="campo">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required autocomplete="username">
@@ -29,7 +37,9 @@
             <label for="senha">Senha</label>
             <div class="campo-senha">
                 <input type="password" id="senha" name="senha" required autocomplete="current-password">
-                <span class="icone-senha" onclick="toggleSenha()">👁️</span>
+                <span class="icone-senha" onclick="toggleSenha()">
+                    <i id="iconeOlho" class="fa-solid fa-eye"></i>
+                </span>
             </div>
         </div>
 
@@ -40,7 +50,17 @@
 <script>
     function toggleSenha() {
         const input = document.getElementById('senha');
-        input.type = input.type === 'password' ? 'text' : 'password';
+        const icone = document.getElementById('iconeOlho');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icone.classList.remove('fa-eye');
+            icone.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icone.classList.remove('fa-eye-slash');
+            icone.classList.add('fa-eye');
+        }
     }
 
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -57,7 +77,6 @@
                 body: JSON.stringify({ email, senha })
             });
             if (resp.ok) {
-                // Redireciona para a página inicial após login bem-sucedido
                 window.location.href = '/inicio.html';
             } else {
                 const msg = await resp.text();

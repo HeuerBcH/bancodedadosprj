@@ -1,34 +1,40 @@
 body {
     font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(120deg, #fff3e0 0%, #ffe0b2 100%);
-    color: #333;
+    background: whitesmoke;
+    color: #004D40;
     margin: 0;
     padding: 0;
     min-height: 100vh;
 }
 
 header {
-    background: #ff9800;
-    color: #fff;
+    background: whitesmoke;
+    color: #004D40;
     padding: 36px 20px 24px 20px;
     text-align: center;
-    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.10);
+    box-shadow: 0 4px 16px rgba(0, 77, 64, 0.1);
     border-bottom-left-radius: 32px;
     border-bottom-right-radius: 32px;
 }
 
-header h1 {
-    font-size: 2.3rem;
-    margin: 0;
-    font-weight: 700;
-    letter-spacing: 1px;
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.logo-imagem {
+    max-width: 180px;
+    max-height: 70px;
+    object-fit: contain;
 }
 
 header .subtitulo {
     font-size: 1.1rem;
-    opacity: 0.95;
+    color: #90A4AE;
     margin-top: 8px;
-    font-weight: 400;
+    font-weight: 500;
     letter-spacing: 0.5px;
 }
 
@@ -41,12 +47,12 @@ main {
 }
 
 .form-login {
-    background: #fff;
+    background: whitesmoke;
     padding: 36px 32px 32px 32px;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(255, 152, 0, 0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 32px rgba(144, 164, 174, 0.15), 0 1.5px 8px rgba(0, 77, 64, 0.04);
     width: 100%;
-    max-width: 370px;
+    max-width: 500px;
     animation: fadeIn 0.7s cubic-bezier(.39,.575,.565,1);
 }
 
@@ -58,7 +64,7 @@ main {
 label {
     display: block;
     font-weight: 600;
-    color: #ff9800;
+    color: #004D40;
     margin-bottom: 6px;
     letter-spacing: 0.2px;
 }
@@ -68,22 +74,25 @@ label {
 }
 
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="text"] {
     width: 100%;
     padding: 13px;
-    border: 1.5px solid #ffd180;
+    border: 1.5px solid #90A4AE;
     border-radius: 7px;
     box-sizing: border-box;
     font-size: 16px;
-    background: #fff8f0;
+    background: #fff;
     transition: border 0.3s;
+    color: #004D40;
 }
 
 input[type="email"]:focus,
-input[type="password"]:focus {
-    border-color: #ff9800;
+input[type="password"]:focus,
+input[type="text"]:focus {
+    border-color: #FF9800;
     outline: none;
-    background: #fffde7;
+    background: #fff8f0;
 }
 
 .campo-senha {
@@ -97,7 +106,7 @@ input[type="password"]:focus {
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 19px;
-    color: #ff9800;
+    color: #004D40;
     opacity: 0.7;
     transition: opacity 0.2s;
 }
@@ -109,27 +118,27 @@ button {
     width: 100%;
     margin-top: 32px;
     padding: 13px;
-    background: linear-gradient(90deg, #ff9800 60%, #fb8c00 100%);
+    background: linear-gradient(90deg, #004D40 60%, #00796B 100%);
     color: #fff;
     font-size: 17px;
     font-weight: 700;
     border: none;
     border-radius: 7px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.10);
+    box-shadow: 0 2px 8px rgba(0, 77, 64, 0.15);
     transition: background 0.2s, transform 0.15s;
     letter-spacing: 0.5px;
 }
 
 button:hover {
-    background: linear-gradient(90deg, #fb8c00 60%, #ff9800 100%);
+    background: linear-gradient(90deg, #00796B 60%, #004D40 100%);
     transform: scale(1.025);
 }
 
 .mensagem-erro {
     background: #fff3e0;
     color: #d84315;
-    border: 1.5px solid #ff9800;
+    border: 1.5px solid #FF9800;
     padding: 13px;
     border-radius: 7px;
     margin-bottom: 18px;
@@ -140,10 +149,34 @@ button:hover {
 }
 
 @media (max-width: 480px) {
-    header h1 {
-        font-size: 1.5rem;
+    header .logo-imagem {
+        max-width: 120px;
+        max-height: 50px;
     }
     .form-login {
         padding: 24px 10px 20px 10px;
     }
 }
+.logo-imagem {
+    max-width: 250px;
+    height: auto;
+    display: block;
+    margin: 0 auto 12px auto;
+}
+
+.welcome-message {
+    text-align: center;
+    margin-bottom: 24px;
+    font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+    color: #004D40;
+}
+
+.welcome-message h2 {
+    font-weight: 500;
+    font-size: 3rem;
+    margin-bottom: 6px;
+    letter-spacing: 0.6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
