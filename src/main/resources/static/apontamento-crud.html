@@ -11,7 +11,9 @@
 <div class="layout">
     <aside class="sidebar">
         <div class="logo">
-            <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
         </div>
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
@@ -95,6 +97,7 @@
     const funcionarioUrl = "http://localhost:8081/funcionario";
     const feriadoUrl = "http://localhost:8081/feriado";
     let apontamentoEditando = null;
+    let feriadosCache = []; // Armazena os feriados carregados
 
     function carregarAtividades() {
         fetch(atividadeUrl)
@@ -105,7 +108,7 @@
                 data.forEach(atividade => {
                     const option = document.createElement("option");
                     option.value = atividade.id_atividade;
-                    option.textContent = `${atividade.id_atividade} - ${atividade.descricao.substring(0, 30)}${atividade.descricao.length > 30 ? '...' : ''}`;
+                    option.textContent = `${atividade.descricao.substring(0, 30)}${atividade.descricao.length > 30 ? '...' : ''}`;
                     select.appendChild(option);
                 });
             });
@@ -120,7 +123,7 @@
                 data.forEach(funcionario => {
                     const option = document.createElement("option");
                     option.value = funcionario.id_funcionario;
-                    option.textContent = `${funcionario.id_funcionario} - ${funcionario.nome}`;
+                    option.textContent = `${funcionario.nome}`;
                     select.appendChild(option);
                 });
             });
@@ -130,12 +133,13 @@
         fetch(feriadoUrl)
             .then(res => res.json())
             .then(data => {
+                feriadosCache = data; // Salva todos os feriados para consulta posterior
                 const select = document.getElementById("feriado");
                 select.innerHTML = '<option value="">Nenhum</option>';
                 data.forEach(feriado => {
                     const option = document.createElement("option");
                     option.value = feriado.id_feriado;
-                    option.textContent = `${feriado.id_feriado} - ${feriado.nome_feriado}`;
+                    option.textContent = `${feriado.nomeFeriado}`;
                     select.appendChild(option);
                 });
             });
@@ -234,6 +238,16 @@
             return;
         }
 
+        // Validação do feriado permite lançamento
+        const feriadoValue = document.getElementById("feriado").value;
+        if (feriadoValue) {
+            const feriadoSelecionado = feriadosCache.find(f => f.id_feriado == feriadoValue);
+            if (feriadoSelecionado && feriadoSelecionado.permiteLancamento === false) {
+                alert("Não é permitido lançar apontamento neste feriado.");
+                return;
+            }
+        }
+
         const apontamento = {
             hora_inicio: padTime(hora_inicio),
             hora_fim: padTime(hora_fim),
@@ -245,7 +259,6 @@
             funcionario: { id_funcionario: parseInt(document.getElementById("funcionario").value) }
         };
 
-        const feriadoValue = document.getElementById("feriado").value;
         if (feriadoValue) {
             apontamento.feriado = { id_feriado: parseInt(feriadoValue) };
         }
@@ -294,6 +307,5 @@
         carregarFeriados();
     };
 </script>
-
 </body>
 </html>
