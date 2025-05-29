@@ -11,7 +11,6 @@
 <body>
 <div class="layout">
     <aside class="sidebar">
-        <!-- ...sidebar igual aos outros arquivos... -->
         <div class="logo">
             <a href="/inicio.html">
                 <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
@@ -20,7 +19,7 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
             <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
@@ -28,8 +27,6 @@
             <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
             <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
             <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
-            <a href="/cliente-info.html"><i class="fas fa-chart-bar"></i> Info Clientes</a>
-            <a href="/users-dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard Usuários</a>
         </nav>
     </aside>
     <main class="content">
@@ -42,14 +39,26 @@
                 <div class="row g-4 justify-content-center">
                     <div class="col-lg-6 col-xl-4">
                         <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Setor</h5>
+                            <h5 class="text-center mb-3">Usuários por Setor (Barras)</h5>
                             <canvas id="graficoSetor" height="220"></canvas>
                         </div>
                     </div>
                     <div class="col-lg-6 col-xl-4">
                         <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Centro de Custo</h5>
+                            <h5 class="text-center mb-3">Usuários por Setor (Rosca)</h5>
+                            <canvas id="graficoSetorRosca" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Usuários por Centro de Custo (Barras)</h5>
                             <canvas id="graficoCC" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Usuários por Centro de Custo (Rosca)</h5>
+                            <canvas id="graficoCCRosca" height="220"></canvas>
                         </div>
                     </div>
                     <div class="col-lg-6 col-xl-4">
@@ -92,7 +101,7 @@
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false },
+                    legend: { display: tipo === 'doughnut' || tipo === 'pie' },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -101,10 +110,10 @@
                         }
                     }
                 },
-                scales: {
+                scales: (tipo === 'bar') ? {
                     y: { beginAtZero: true, ticks: { stepSize: 1 } },
                     x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
-                }
+                } : {}
             }
         });
     }
@@ -119,9 +128,14 @@
             });
     }
 
+    // Gráficos já existentes
     carregarGrafico('count-by-setor', 'graficoSetor', 'Usuários por Setor', 'bar');
     carregarGrafico('count-by-ccpadrao', 'graficoCC', 'Usuários por Centro de Custo', 'bar');
     carregarGrafico('count-by-nivel', 'graficoNivel', 'Usuários por Nível', 'pie');
+
+    // Novos gráficos: Setor (rosca) e Centro de Custo (rosca)
+    carregarGrafico('count-by-setor', 'graficoSetorRosca', 'Usuários por Setor', 'doughnut');
+    carregarGrafico('count-by-ccpadrao', 'graficoCCRosca', 'Usuários por Centro de Custo', 'doughnut');
 </script>
 </body>
 </html>

@@ -18,8 +18,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -30,40 +30,83 @@
     </aside>
 
     <main class="content">
-        <h1 class="mb-4 text-center" style="color:#ff9800;">Gerenciamento de Usuários</h1>
 
-        <div class="text-center mb-4">
-            <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Usuários</button>
-        </div>
-
-        <div class="card shadow-sm mb-5">
-            <div class="card-header bg-primary text-white">Novo Usuário</div>
-            <div class="card-body">
-                <form id="userForm">
+        <div class="card shadow-sm mb-5 user-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-user-plus me-2"></i><span id="formTitle">Novo Usuário</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <form id="userForm" autocomplete="off">
                     <div class="row g-3">
-                        <div class="col-md-6"><input type="email" class="form-control" id="email" placeholder="Email" required></div>
-                        <div class="col-md-6"><input type="text" class="form-control" id="senha" placeholder="Senha" required></div>
-                        <div class="col-md-6"><input type="text" class="form-control" id="username" placeholder="Nome de usuário" required></div>
-                        <div class="col-md-6"><input type="text" class="form-control" id="setor" placeholder="Setor" required></div>
-                        <div class="col-md-6"><input type="number" class="form-control" id="ccpadrao" placeholder="Centro de Custo Padrão" required></div>
                         <div class="col-md-6">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" placeholder="Digite o e-mail" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="senha" class="form-label">Senha</label>
+                            <input type="text" class="form-control" id="senha" placeholder="Digite a senha" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Nome de usuário</label>
+                            <input type="text" class="form-control" id="username" placeholder="Digite o nome de usuário" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="setor" class="form-label">Setor</label>
+                            <input type="text" class="form-control" id="setor" placeholder="Digite o setor" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ccpadrao" class="form-label">Centro de Custo Padrão</label>
+                            <input type="number" class="form-control" id="ccpadrao" placeholder="Digite o centro de custo" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="nivel" class="form-label">Nível</label>
                             <select class="form-select" id="nivel">
                                 <option value="false">Usuário comum</option>
                                 <option value="true">Administrador</option>
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
-                    <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <div id="listaUsuarios" class="card shadow-sm d-none">
-            <div class="card-header bg-secondary text-white">Usuários Cadastrados</div>
-            <ul class="list-group list-group-flush" id="userList">
-                <!-- Usuários serão inseridos aqui -->
-            </ul>
+        <div id="listaUsuarios" class="users-list-card">
+            <h3 class="mb-3" style="color:#004D40; font-weight: 500;"><b>LISTA DE USUÁRIOS</b></h3>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th scope="col" style="font-weight: 500; color: #fff; cursor:pointer;" onclick="ordenarPor('username')">
+                                Nome <i class="fas fa-sort"></i>
+                            </th>
+                            <th scope="col" style="font-weight: 500; color: #fff; cursor:pointer;" onclick="ordenarPor('email')">
+                                E-mail <i class="fas fa-sort"></i>
+                            </th>
+                            <th scope="col" style="font-weight: 500; color: #fff; cursor:pointer;" onclick="ordenarPor('setor')">
+                                Setor <i class="fas fa-sort"></i>
+                            </th>
+                            <th scope="col" style="font-weight: 500; color: #fff; cursor:pointer;" onclick="ordenarPor('ccpadrao')">
+                                Centro de Custo <i class="fas fa-sort"></i>
+                            </th>
+                            <th scope="col" style="font-weight: 500; color: #fff; cursor:pointer;" onclick="ordenarPor('nivel')">
+                                Nível <i class="fas fa-sort"></i>
+                            </th>
+                            <th scope="col" class="text-center" style="font-weight: 500; color: #fff;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList">
+                        <!-- Usuários serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
@@ -71,32 +114,78 @@
 <script>
     const apiUrl = "http://localhost:8081/users";
     let userEditando = null;
+    let usuariosCache = [];
+    let ordemAtual = { campo: null, asc: true };
 
     function carregarUsuarios() {
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
-                const userList = document.getElementById("userList");
-                userList.innerHTML = "";
-
-                data.forEach(user => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.innerHTML = `
-                        <div>
-                            <strong>${user.username}</strong> | ${user.email} | Setor: ${user.setor}
-                            <span class="badge bg-${user.nivel ? 'success' : 'secondary'} ms-2">
-                                ${user.nivel ? 'Admin' : 'Usuário'}
-                            </span>
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-warning me-2" onclick="editarUsuario(${user.id_user})">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deletarUsuario(${user.id_user})">Excluir</button>
-                        </div>
-                    `;
-                    userList.appendChild(li);
-                });
+                usuariosCache = data;
+                renderizarUsuarios();
             });
+    }
+
+    function renderizarUsuarios() {
+        let data = [...usuariosCache];
+        if (ordemAtual.campo) {
+            data.sort((a, b) => {
+                let vA = a[ordemAtual.campo];
+                let vB = b[ordemAtual.campo];
+                // Para nivel, ordenar admin primeiro
+                if (ordemAtual.campo === "nivel") {
+                    vA = a.nivel ? 1 : 0;
+                    vB = b.nivel ? 1 : 0;
+                }
+                if (typeof vA === "string") vA = vA.toLowerCase();
+                if (typeof vB === "string") vB = vB.toLowerCase();
+                if (vA < vB) return ordemAtual.asc ? -1 : 1;
+                if (vA > vB) return ordemAtual.asc ? 1 : -1;
+                return 0;
+            });
+        }
+
+        const userList = document.getElementById("userList");
+        userList.innerHTML = "";
+
+        if (!data.length) {
+            userList.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Nenhum usuário cadastrado.</td></tr>`;
+            return;
+        }
+
+        data.forEach(user => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="font-weight:500; color:#222;">${user.username}</td>
+                <td style="color:#555;">${user.email}</td>
+                <td style="color:#555;">${user.setor || '-'}</td>
+                <td style="color:#555;">${user.ccpadrao || '-'}</td>
+                <td>
+                    <span class="user-badge ${user.nivel ? 'admin' : 'comum'}" style="font-size:0.93rem; padding:0.18rem 0.7rem;">
+                        ${user.nivel ? 'Admin' : 'Usuário'}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-warning me-2" onclick="editarUsuario(${user.id_user})" title="Editar" style="border-radius:6px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletarUsuario(${user.id_user})" title="Excluir" style="border-radius:6px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            userList.appendChild(tr);
+        });
+    }
+
+    function ordenarPor(campo) {
+        if (ordemAtual.campo === campo) {
+            ordemAtual.asc = !ordemAtual.asc;
+        } else {
+            ordemAtual.campo = campo;
+            ordemAtual.asc = true;
+        }
+        renderizarUsuarios();
     }
 
     function deletarUsuario(id) {
@@ -117,8 +206,8 @@
                 document.getElementById("ccpadrao").value = user.ccpadrao;
                 document.getElementById("nivel").value = user.nivel.toString();
 
-                document.querySelector("#userForm button").textContent = "Atualizar";
-                document.querySelector(".card-header").textContent = "Editar Usuário";
+                document.getElementById("formTitle").textContent = "Editar Usuário";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
                 document.getElementById("cancelarBtn").classList.remove("d-none");
             });
     }
@@ -147,8 +236,8 @@
             this.reset();
             userEditando = null;
 
-            document.querySelector("#userForm button").textContent = "Cadastrar";
-            document.querySelector(".card-header").textContent = "Novo Usuário";
+            document.getElementById("formTitle").textContent = "Novo Usuário";
+            document.getElementById("submitBtnText").textContent = "Cadastrar";
             document.getElementById("cancelarBtn").classList.add("d-none");
         });
     });
@@ -157,18 +246,93 @@
         document.getElementById("userForm").reset();
         userEditando = null;
 
-        document.querySelector("#userForm button").textContent = "Cadastrar";
-        document.querySelector(".card-header").textContent = "Novo Usuário";
+        document.getElementById("formTitle").textContent = "Novo Usuário";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
         document.getElementById("cancelarBtn").classList.add("d-none");
     }
 
-    function alternarLista() {
-        const lista = document.getElementById("listaUsuarios");
-        lista.classList.toggle("d-none");
-        if (!lista.classList.contains("d-none")) {
-            carregarUsuarios();
-        }
-    }
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarUsuarios;
 </script>
+<style>
+    /* Copiado de users-info.html para garantir visual idêntico */
+    .users-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .user-badge {
+        font-size: 0.95rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+    .user-badge.admin {
+        background: #004D40;
+        color: #fff;
+    }
+    .user-badge.comum {
+        background: #bdbdbd;
+        color: #004D40;
+    }
+    .user-actions button {
+        margin-left: 0.5rem;
+    }
+    .user-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .user-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .user-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .user-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .user-form-card .form-control, .user-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .user-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .user-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .user-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .user-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .users-list-card { padding: 1rem; }
+        .user-form-card .card-body { padding: 1rem; }
+    }
+</style>
 </body>
 </html>

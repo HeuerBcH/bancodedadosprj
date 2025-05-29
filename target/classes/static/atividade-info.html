@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Atividades - Estratégica Engenharia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-atividades {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .dashboard-atividades .card {
+            border: none;
+            background: #004D40;
+            color: #fff;
+        }
+        .dashboard-atividades .card-title {
+            color: #fff;
+        }
+        .chart-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .atividades-list-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .atividade-badge.interna {
+            background: #004D40;
+            color: #fff;
+            font-weight: 500;
+            border-radius: 12px;
+            padding: 0.25rem 0.75rem;
+        }
+        .atividade-badge.externa {
+            background: #bdbdbd;
+            color: #004D40;
+            font-weight: 500;
+            border-radius: 12px;
+            padding: 0.25rem 0.75rem;
+        }
+        .add-atividade-btn {
+            margin: 2.5rem auto 0 auto;
+            display: block;
+            font-size: 1.1rem;
+            padding: 0.75rem 2.5rem;
+            border-radius: 8px;
+            background: #ff9800;
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .add-atividade-btn:hover {
+            background: #fb8c00;
+            color: #fff;
+        }
+        @media (max-width: 700px) {
+            .dashboard-atividades, .atividades-list-card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <!-- DASHBOARD DE ATIVIDADES -->
+        <div class="dashboard-atividades mb-4">
+            <h2 class="mb-3" style="color:#004D40;"><b>Dashboard</b></h2>
+            <!-- Dashboard vazio por hora -->
+        </div>
+
+        <!-- LISTA DE ATIVIDADES NO NOVO PADRÃO -->
+        <div class="atividades-list-card mb-4">
+            <h3 class="mb-3" style="color:#004D40; font-weight: 500;"><b>Atividades Cadastradas</b></h3>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th scope="col" style="font-weight: 500; color: #fff;">ID</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;">Descrição</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;">Tipo</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="atividadeList">
+                        <!-- Atividades serão inseridas aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BOTÃO ADICIONAR ATIVIDADE -->
+        <button class="add-atividade-btn" onclick="window.location.href='/atividade-crud.html'">
+            <i class="fas fa-plus"></i> Gerenciar Atividades
+        </button>
+    </main>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/atividade";
+    let atividadesCache = [];
+
+    function carregarAtividades() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                atividadesCache = data;
+                renderizarAtividades();
+            });
+    }
+
+    function renderizarAtividades() {
+        const atividadeList = document.getElementById("atividadeList");
+        atividadeList.innerHTML = "";
+
+        if (!atividadesCache.length) {
+            atividadeList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma atividade cadastrada.</td></tr>`;
+            return;
+        }
+
+        atividadesCache.forEach(atividade => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="font-weight:500; color:#222;">${atividade.id_atividade}</td>
+                <td style="color:#555;">${atividade.descricao}</td>
+                <td>
+                    <span class="atividade-badge ${atividade.interna ? 'interna' : 'externa'}">
+                        ${atividade.interna ? 'Interna' : 'Externa'}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletarAtividade(${atividade.id_atividade})" title="Excluir" style="border-radius:6px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            atividadeList.appendChild(tr);
+        });
+    }
+
+    function deletarAtividade(id) {
+        if (confirm("Tem certeza que deseja excluir esta atividade?")) {
+            fetch(`${apiUrl}/${id}`, { method: "DELETE" })
+                .then(res => {
+                    if (res.ok) {
+                        carregarAtividades();
+                    } else {
+                        alert("Erro ao excluir atividade.");
+                    }
+                });
+        }
+    }
+
+    window.onload = carregarAtividades;
+</script>
+</body>
+</html>

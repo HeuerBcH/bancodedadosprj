@@ -21,7 +21,7 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
             <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
@@ -29,15 +29,19 @@
             <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
             <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
             <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
-            <a href="/cliente-info.html" class="active"><i class="fas fa-chart-bar"></i> Info Clientes</a>
         </nav>
     </aside>
 
     <main class="content">
         <div id="mensagem-erro" style="display: none; background-color: #ffcdd2; color: #b71c1c; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;"></div>
 
+        <header class="main-header">
+            <h1>Bem-vindo ao Sistema de Gestão Estratégica Engenharia</h1>
+        </header>
+
         <section class="dashboard">
-            <h2>Dashboard</h2>
+            <h2>Módulos Disponíveis</h2>
+            <p>Escolha um módulo na barra lateral para começar.</p>
 
             <div class="cards-dashboard">
                 <div class="card">
@@ -45,31 +49,30 @@
                     <p id="total-clientes">--</p>
                 </div>
                 <div class="card">
-                    <h3>Total de Funcionarios</h3>
+                    <h3>Total de Pedidos</h3>
+                    <p id="total-pedidos">--</p>
+                </div>
+                <div class="card">
+                    <h3>Produto mais Vendido</h3>
+                    <p id="mais-vendido">--</p>
+                </div>
+                <div class="card">
+                    <h3>Funcionários Ativos</h3>
                     <p id="total-funcionarios">--</p>
                 </div>
                 <div class="card">
-                    <h3>Número de Contratos Ativos</h3>
-                    <p id="numero-de-contratos-ativos">--</p>
+                    <h3>Total de Produtos</h3>
+                    <p id="total-produtos">--</p>
                 </div>
             </div>
         </section>
         <br>
         <section class="dashboard">
-            <h2>Pesquisa Gráfica</h2>
             <form id="filtro-dashboard" style="margin-top: 2rem;">
                 <label for="entidade">Selecionar módulo:</label>
                 <select id="entidade" name="entidade">
-                    <option value="cliente">Clientes</option>
-                    <option value="funcionario">Funcionários</option>
-                    <option value="contrato">Contratos</option>
-                    <option value="feriado">Feriados</option>
-                    <option value="atividade">Atividades</option>
-                </select>
-
-                <label for="campoConsulta" style="margin-left: 1rem;">Agrupar por:</label>
-                <select id="campoConsulta" name="campoConsulta">
-                    <!-- Opções serão preenchidas dinamicamente -->
+                    <option value="pedidos">Pedidos</option>
+                    <option value="atendimentos">Atendimentos</option>
                 </select>
 
                 <label for="tipoGrafico" style="margin-left: 1rem;">Tipo de gráfico:</label>
@@ -78,6 +81,13 @@
                     <option value="line">Linha</option>
                     <option value="pie">Pizza</option>
                 </select>
+
+                <label for="dataInicio" style="margin-left: 1rem;">De:</label>
+                <input type="date" id="dataInicio" name="dataInicio">
+
+                <label for="dataFim" style="margin-left: 1rem;">Até:</label>
+                <input type="date" id="dataFim" name="dataFim">
+
                 <button type="submit" style="margin-left: 1rem;">Aplicar</button>
             </form>
 
@@ -89,24 +99,18 @@
         </section>
     </main>
 </div>
+
 <script>
     async function carregarResumoDashboard() {
         try {
-            // Busca total de clientes
-            const clientesResp = await fetch('/cliente');
-            const clientes = await clientesResp.json();
-            document.getElementById('total-clientes').textContent = clientes.length;
+            const resposta = await fetch('/dashboard/resumo');
+            const dados = await resposta.json();
 
-            // Busca total de funcionários
-            const funcionariosResp = await fetch('/funcionario');
-            const funcionarios = await funcionariosResp.json();
-            document.getElementById('total-funcionarios').textContent = funcionarios.length;
-
-            // Busca contratos ativos (estado = 'Ativo')
-            const contratosResp = await fetch('/contrato');
-            const contratos = await contratosResp.json();
-            const ativos = contratos.filter(c => c.estado && c.estado.toLowerCase() === 'ativo');
-            document.getElementById('numero-de-contratos-ativos').textContent = ativos.length;
+            document.getElementById('total-clientes').textContent = dados.totalClientes;
+            document.getElementById('total-pedidos').textContent = dados.totalPedidos;
+            document.getElementById('mais-vendido').textContent = dados.produtoMaisVendido;
+            document.getElementById('total-funcionarios').textContent = dados.totalFuncionariosAtivos;
+            document.getElementById('total-produtos').textContent = dados.totalProdutos;
         } catch (erro) {
             console.error('Erro ao carregar o resumo:', erro);
         }
@@ -149,125 +153,43 @@
         });
     }
 
-    // Campos disponíveis para cada entidade
-    const camposPorEntidade = {
-        cliente: [
-            { value: "count-by-bairro", label: "Bairro" },
-            { value: "count-by-estado", label: "Estado" },
-            { value: "count-by-cidade", label: "Cidade" },
-            { value: "count-by-cep", label: "CEP" },
-            { value: "count-by-email-domain", label: "Domínio de Email" }
-        ],
-        funcionario: [
-            { value: "count-by-nome", label: "Nome" }
-        ],
-        contrato: [
-            { value: "status", label: "Status (Ativo/Inativo)" }
-        ],
-        feriado: [
-            { value: "count-by-mes", label: "Mês" },
-            { value: "count-by-permite-lancamento", label: "Permite Lançamento" },
-            { value: "count-by-nome", label: "Nome" }
-        ],
-        atividade: [
-            { value: "count-by-interna", label: "Tipo (Interna/Externa)" }
-        ]
-    };
-
-    function atualizarCamposConsulta() {
-        const entidade = document.getElementById('entidade').value;
-        const campoSelect = document.getElementById('campoConsulta');
-        campoSelect.innerHTML = "";
-        (camposPorEntidade[entidade] || []).forEach(campo => {
-            const option = document.createElement('option');
-            option.value = campo.value;
-            option.textContent = campo.label;
-            campoSelect.appendChild(option);
-        });
-    }
-
-    document.getElementById('entidade').addEventListener('change', atualizarCamposConsulta);
-
-    document.addEventListener('DOMContentLoaded', function() {
-        carregarResumoDashboard();
-        atualizarCamposConsulta();
-    });
-
     document.getElementById('filtro-dashboard').addEventListener('submit', function (e) {
         e.preventDefault();
 
         const entidade = document.getElementById('entidade').value;
-        const campo = document.getElementById('campoConsulta').value;
         const tipoGrafico = document.getElementById('tipoGrafico').value;
+        const dataInicio = document.getElementById('dataInicio').value;
+        const dataFim = document.getElementById('dataFim').value;
 
-        document.getElementById('loader').style.display = 'block';
-
-        let url = "";
-        if (entidade === "cliente") {
-            url = `/cliente/${campo}`;
-        } else if (entidade === "feriado") {
-            url = `/feriado/${campo}`;
-        } else if (entidade === "contrato" && campo === "status") {
-            url = `/contrato`;
-        } else if (entidade === "atividade" && campo === "count-by-interna") {
-            url = `/atividade`;
-        } else if (entidade === "funcionario" && campo === "count-by-nome") {
-            url = `/funcionario`;
-        } else {
-            document.getElementById('loader').style.display = 'none';
-            mostrarErro("Consulta não implementada para este módulo.");
+        if (!dataInicio || !dataFim) {
+            mostrarErro('Por favor, selecione um intervalo de datas válido.');
+            return;
+        }
+        if (new Date(dataInicio) > new Date(dataFim)) {
+            mostrarErro('A data de início deve ser anterior à data de fim.');
             return;
         }
 
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error("Erro HTTP: " + response.status);
-                return response.json();
-            })
+        document.getElementById('loader').style.display = 'block';
+
+        fetch(`/dashboard/dados?entidade=${entidade}&tipo=${tipoGrafico}&inicio=${dataInicio}&fim=${dataFim}`)
+            .then(response => response.json())
             .then(dados => {
                 document.getElementById('loader').style.display = 'none';
 
-                let labels = [];
-                let valores = [];
-                let label = "";
-
-                if (entidade === "contrato" && campo === "status") {
-                    const ativos = dados.filter(c => c.estado && c.estado.toLowerCase() === 'ativo').length;
-                    const inativos = dados.length - ativos;
-                    labels = ["Ativo", "Inativo"];
-                    valores = [ativos, inativos];
-                    label = "Contratos por Status";
-                } else if (entidade === "atividade" && campo === "count-by-interna") {
-                    const total = { Interna: 0, Externa: 0 };
-                    dados.forEach(a => {
-                        if (a.interna) total.Interna++;
-                        else total.Externa++;
-                    });
-                    labels = Object.keys(total);
-                    valores = Object.values(total);
-                    label = "Atividades por Tipo";
-                } else if (entidade === "funcionario" && campo === "count-by-nome") {
-                    // Agrupa funcionários por nome
-                    const agrupado = {};
-                    dados.forEach(f => {
-                        agrupado[f.nome] = (agrupado[f.nome] || 0) + 1;
-                    });
-                    labels = Object.keys(agrupado);
-                    valores = Object.values(agrupado);
-                    label = "Funcionários por Nome";
+                if (dados.erro) {
+                    mostrarErro(dados.erro);
                 } else {
-                    labels = Object.keys(dados);
-                    valores = Object.values(dados);
-                    label = document.getElementById('campoConsulta').selectedOptions[0].textContent;
+                    desenharGrafico(dados, tipoGrafico);
                 }
-
-                desenharGrafico({ labels, valores, label }, tipoGrafico);
             })
-            .catch((err) => {
+            .catch(() => {
                 document.getElementById('loader').style.display = 'none';
-                mostrarErro("Erro ao buscar dados. Tente novamente. " + (err.message || ""));
+                mostrarErro("Erro ao buscar dados. Tente novamente.");
             });
     });
+
+    window.onload = carregarResumoDashboard;
 </script>
 
 </body>

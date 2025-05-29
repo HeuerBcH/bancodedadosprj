@@ -18,8 +18,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -29,74 +29,102 @@
         </nav>
     </aside>
     <main class="content">
-        <h1 class="mb-4 text-center" style="color:#ff9800;">Gerenciamento de Atividades</h1>
 
-        <!-- Botão de visualização da lista -->
-        <div class="text-center mb-4">
-            <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Atividades</button>
-        </div>
-
-        <!-- Formulário -->
-        <div class="card shadow-sm mb-5">
-            <div class="card-header bg-primary text-white">Nova Atividade</div>
-            <div class="card-body">
-                <form id="atividadeForm">
+        <div class="card shadow-sm mb-5 atividade-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-tasks me-2"></i><span id="formTitle">Nova Atividade</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <form id="atividadeForm" autocomplete="off">
                     <div class="row g-3">
                         <div class="col-md-8">
+                            <label for="descricao" class="form-label" style="color:#004D40; font-weight:500;">Descrição da Atividade</label>
                             <input type="text" class="form-control" id="descricao" placeholder="Descrição da Atividade" maxlength="400" required>
                         </div>
                         <div class="col-md-4">
+                            <label for="interna" class="form-label" style="color:#004D40; font-weight:500;">Tipo</label>
                             <select class="form-select" id="interna" required>
                                 <option value="true">Interna</option>
                                 <option value="false">Externa</option>
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
-                    <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <!-- Lista de atividades (oculta inicialmente) -->
-        <div id="listaAtividades" class="card shadow-sm d-none">
-            <div class="card-header bg-secondary text-white">Atividades Cadastradas</div>
-            <ul class="list-group list-group-flush" id="atividadeList">
-                <!-- Atividades serão inseridas aqui -->
-            </ul>
+        <div id="listaAtividades" class="atividades-list-card">
+            <h3 class="mb-3" style="color:#004D40; font-weight: 500;"><b>Atividades Cadastradas</b></h3>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th scope="col" style="font-weight: 500; color: #fff;">ID</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;">Descrição</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;">Tipo</th>
+                            <th scope="col" class="text-center" style="font-weight: 500; color: #fff;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="atividadeList">
+                        <!-- Atividades serão inseridas aqui -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
 <script>
     const apiUrl = "http://localhost:8081/atividade";
     let atividadeEditando = null;
+    let atividadesCache = [];
 
     function carregarAtividades() {
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
-                const atividadeList = document.getElementById("atividadeList");
-                atividadeList.innerHTML = "";
-
-                data.forEach(atividade => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.innerHTML = `
-                        <div>
-                            <strong>ID:</strong> ${atividade.id_atividade} |
-                            <strong>Descrição:</strong> ${atividade.descricao} |
-                            <span class="badge bg-${atividade.interna ? 'primary' : 'secondary'}">
-                                ${atividade.interna ? 'Interna' : 'Externa'}
-                            </span>
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-warning me-2" onclick="editarAtividade(${atividade.id_atividade})">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deletarAtividade(${atividade.id_atividade})">Excluir</button>
-                        </div>
-                    `;
-                    atividadeList.appendChild(li);
-                });
+                atividadesCache = data;
+                renderizarAtividades();
             });
+    }
+
+    function renderizarAtividades() {
+        const atividadeList = document.getElementById("atividadeList");
+        atividadeList.innerHTML = "";
+
+        if (!atividadesCache.length) {
+            atividadeList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma atividade cadastrada.</td></tr>`;
+            return;
+        }
+
+        atividadesCache.forEach(atividade => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="font-weight:500; color:#222;">${atividade.id_atividade}</td>
+                <td style="color:#555;">${atividade.descricao}</td>
+                <td>
+                    <span class="atividade-badge ${atividade.interna ? 'interna' : 'externa'}">
+                        ${atividade.interna ? 'Interna' : 'Externa'}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-warning me-2" onclick="editarAtividade(${atividade.id_atividade})" title="Editar" style="border-radius:6px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletarAtividade(${atividade.id_atividade})" title="Excluir" style="border-radius:6px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            atividadeList.appendChild(tr);
+        });
     }
 
     function deletarAtividade(id) {
@@ -113,8 +141,8 @@
                 document.getElementById("descricao").value = atividade.descricao;
                 document.getElementById("interna").value = atividade.interna.toString();
 
-                document.querySelector("#atividadeForm button").textContent = "Atualizar";
-                document.querySelector(".card-header").textContent = "Editar Atividade";
+                document.getElementById("formTitle").textContent = "Editar Atividade";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
                 document.getElementById("cancelarBtn").classList.remove("d-none");
             });
     }
@@ -139,8 +167,8 @@
             this.reset();
             atividadeEditando = null;
 
-            document.querySelector("#atividadeForm button").textContent = "Cadastrar";
-            document.querySelector(".card-header").textContent = "Nova Atividade";
+            document.getElementById("formTitle").textContent = "Nova Atividade";
+            document.getElementById("submitBtnText").textContent = "Cadastrar";
             document.getElementById("cancelarBtn").classList.add("d-none");
         });
     });
@@ -149,18 +177,89 @@
         document.getElementById("atividadeForm").reset();
         atividadeEditando = null;
 
-        document.querySelector("#atividadeForm button").textContent = "Cadastrar";
-        document.querySelector(".card-header").textContent = "Nova Atividade";
+        document.getElementById("formTitle").textContent = "Nova Atividade";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
         document.getElementById("cancelarBtn").classList.add("d-none");
     }
 
-    function alternarLista() {
-        const lista = document.getElementById("listaAtividades");
-        lista.classList.toggle("d-none");
-        if (!lista.classList.contains("d-none")) {
-            carregarAtividades();
-        }
-    }
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarAtividades;
 </script>
+<style>
+    .atividades-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .atividade-badge.interna {
+        background: #004D40;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 12px;
+        padding: 0.25rem 0.75rem;
+    }
+    .atividade-badge.externa {
+        background: #bdbdbd;
+        color: #004D40;
+        font-weight: 500;
+        border-radius: 12px;
+        padding: 0.25rem 0.75rem;
+    }
+    .atividade-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .atividade-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .atividade-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .atividade-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .atividade-form-card .form-control, .atividade-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .atividade-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .atividade-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .atividade-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .atividade-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .atividades-list-card { padding: 1rem; }
+        .atividade-form-card .card-body { padding: 1rem; }
+    }
+</style>
 </body>
 </html>
