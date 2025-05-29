@@ -61,5 +61,8 @@ Utilize algum dos acessos de Login disponibilizados em scripts/ScriptINSERT.sql
 <br>
 
 <p>Mini Mundo: https://docs.google.com/document/d/1Je0S8TmmV_FRIM1-q1WddLsr65qUYxTlAEgJojfBbNs/edit?tab=t.0</p>
-<p>Relatório: https://docs.google.com/document/d/1W5QCMMqd8JlmWybkLa7W4_cX6yY7yZ8nUd0zSgARnQk/edit?tab=t.0#heading=h.foworgbu7jzd</p>
+<p>Relatório 1: https://docs.google.com/document/d/1W5QCMMqd8JlmWybkLa7W4_cX6yY7yZ8nUd0zSgARnQk/edit?tab=t.0#heading=h.foworgbu7jzd</p>
+<p>Relatório 2: https://docs.google.com/document/d/1BuFKKsI1SBYi_7xTeeDuUmjAFf1fzz2_W4nz2sLy8Vg/edit?tab=t.0</p>
+
+
 
