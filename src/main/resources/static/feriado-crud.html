@@ -18,8 +18,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -29,45 +29,67 @@
         </nav>
     </aside>
     <main class="content">
-        <h1 class="mb-4 text-center" style="color:#ff9800;">Gerenciamento de Feriados</h1>
 
-        <div class="text-center mb-4">
-            <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Feriados</button>
-        </div>
-
-        <div class="card shadow-sm mb-5">
-            <div class="card-header bg-primary text-white">Novo Feriado</div>
-            <div class="card-body">
+        <div class="card shadow-sm mb-5 feriado-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-umbrella-beach me-2"></i><span id="formTitle">Novo Feriado</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
                 <form id="feriadoForm">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
+                            <label for="id_feriado" class="form-label">ID</label>
                             <input type="number" class="form-control" id="id_feriado" placeholder="ID do Feriado" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
+                            <label for="nome_feriado" class="form-label">Nome do Feriado</label>
                             <input type="text" class="form-control" id="nome_feriado" placeholder="Nome do Feriado" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-2">
+                            <label for="data_feriado" class="form-label">Data</label>
                             <input type="date" class="form-control" id="data_feriado" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-2">
+                            <label for="permite_lancamento" class="form-label">Permite Lançamento?</label>
                             <select class="form-select" id="permite_lancamento" required>
-                                <option value="" disabled selected>Permite Lançamento?</option>
+                                <option value="" disabled selected>Selecione</option>
                                 <option value="true">Sim</option>
                                 <option value="false">Não</option>
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
-                    <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <div id="listaFeriados" class="card shadow-sm d-none">
-            <div class="card-header bg-secondary text-white">Feriados Cadastrados</div>
-            <ul class="list-group list-group-flush" id="feriadoList">
-                <!-- Feriados serão inseridos aqui -->
-            </ul>
+        <div id="listaFeriados" class="feriados-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE FERIADOS</b></h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">ID</th>
+                            <th style="color:#fff;">Nome</th>
+                            <th style="color:#fff;">Data</th>
+                            <th style="color:#fff;">Permite Lançamento</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feriadoList">
+                        <!-- Feriados serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
@@ -83,20 +105,28 @@
                 const feriadoList = document.getElementById("feriadoList");
                 feriadoList.innerHTML = "";
 
+                if (!data.length) {
+                    feriadoList.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum feriado cadastrado.</td></tr>`;
+                    return;
+                }
+
                 data.forEach(feriado => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.innerHTML = `
-                        <div>
-                            <strong>ID:</strong> ${feriado.idFeriado} |
-                            <strong>${feriado.nomeFeriado}</strong> | ${feriado.dataFeriado} | Permite Lançamento: ${feriado.permiteLancamento ? "Sim" : "Não"}
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-warning me-2" onclick="editarFeriado(${feriado.idFeriado})">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deletarFeriado(${feriado.idFeriado})">Excluir</button>
-                        </div>
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${feriado.idFeriado ?? feriado.id_feriado}</td>
+                        <td style="color:#555;">${feriado.nomeFeriado ?? feriado.nome_feriado}</td>
+                        <td style="color:#555;">${feriado.dataFeriado ?? feriado.data_feriado}</td>
+                        <td style="color:#555;">${(feriado.permiteLancamento ?? feriado.permite_lancamento) ? 'Sim' : 'Não'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarFeriado(${feriado.idFeriado ?? feriado.id_feriado})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarFeriado(${feriado.idFeriado ?? feriado.id_feriado})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     `;
-                    feriadoList.appendChild(li);
+                    feriadoList.appendChild(tr);
                 });
             });
     }
@@ -111,15 +141,15 @@
         fetch(`${apiUrl}/${id}`)
             .then(res => res.json())
             .then(feriado => {
-                feriadoEditando = feriado.idFeriado;
-                document.getElementById("id_feriado").value = feriado.idFeriado;
+                feriadoEditando = feriado.idFeriado ?? feriado.id_feriado;
+                document.getElementById("id_feriado").value = feriado.idFeriado ?? feriado.id_feriado;
                 document.getElementById("id_feriado").readOnly = true;
-                document.getElementById("nome_feriado").value = feriado.nomeFeriado;
-                document.getElementById("data_feriado").value = feriado.dataFeriado;
-                document.getElementById("permite_lancamento").value = feriado.permiteLancamento;
+                document.getElementById("nome_feriado").value = feriado.nomeFeriado ?? feriado.nome_feriado;
+                document.getElementById("data_feriado").value = feriado.dataFeriado ?? feriado.data_feriado;
+                document.getElementById("permite_lancamento").value = (feriado.permiteLancamento ?? feriado.permite_lancamento) ? "true" : "false";
 
-                document.querySelector("#feriadoForm button").textContent = "Atualizar";
-                document.querySelector(".card-header").textContent = "Editar Feriado";
+                document.getElementById("formTitle").textContent = "Editar Feriado";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
                 document.getElementById("cancelarBtn").classList.remove("d-none");
             });
     }
@@ -146,28 +176,85 @@
             this.reset();
             feriadoEditando = null;
             document.getElementById("id_feriado").readOnly = false;
-            document.querySelector("#feriadoForm button").textContent = "Cadastrar";
-            document.querySelector(".card-header").textContent = "Novo Feriado";
+            document.getElementById("formTitle").textContent = "Novo Feriado";
+            document.getElementById("submitBtnText").textContent = "Cadastrar";
             document.getElementById("cancelarBtn").classList.add("d-none");
         });
     });
 
-    function alternarLista() {
-        const lista = document.getElementById("listaFeriados");
-        lista.classList.toggle("d-none");
-        if (!lista.classList.contains("d-none")) {
-            carregarFeriados();
-        }
-    }
     function cancelarEdicao() {
         document.getElementById("feriadoForm").reset();
         feriadoEditando = null;
         document.getElementById("id_feriado").readOnly = false;
-        document.querySelector("#feriadoForm button").textContent = "Cadastrar";
-        document.querySelector(".card-header").textContent = "Novo Feriado";
+        document.getElementById("formTitle").textContent = "Novo Feriado";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
         document.getElementById("cancelarBtn").classList.add("d-none");
     }
-</script>
 
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarFeriados;
+</script>
+<style>
+    .feriados-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .feriado-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .feriado-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .feriado-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .feriado-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .feriado-form-card .form-control, .feriado-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .feriado-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .feriado-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .feriado-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .feriado-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .feriados-list-card { padding: 1rem; }
+        .feriado-form-card .card-body { padding: 1rem; }
+    }
+</style>
 </body>
 </html>

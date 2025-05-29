@@ -7,6 +7,59 @@
     <link rel="stylesheet" href="/inicio.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: #f6f8f7;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .main-dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 1rem 2rem 1rem;
+        }
+        .dashboard-header {
+            color: #004D40;
+            font-weight: 700;
+            letter-spacing: 1px;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .chart-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem 1rem 1rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 340px;
+        }
+        .chart-title {
+            color: #004D40;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        @media (max-width: 900px) {
+            .main-dashboard-container { padding: 1rem 0.2rem 1rem 0.2rem; }
+            .chart-grid { gap: 1rem; }
+            .chart-container { min-height: 260px; }
+        }
+        @media (max-width: 700px) {
+            .main-dashboard-container { padding: 0.5rem 0.1rem 1rem 0.1rem; }
+            .chart-grid { gap: 0.5rem; }
+            .chart-container { padding: 1rem 0.2rem 0.5rem 0.2rem; min-height: 180px; }
+        }
+    </style>
 </head>
 <body>
 <div class="layout">
@@ -19,8 +72,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -30,43 +83,28 @@
         </nav>
     </aside>
     <main class="content">
-        <h1 class="mb-4 text-center">Dashboard de Usuários</h1>
-        <div class="card mb-5">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-chart-pie"></i> Gráficos de Usuários
-            </div>
-            <div class="card-body">
-                <div class="row g-4 justify-content-center">
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Setor (Barras)</h5>
-                            <canvas id="graficoSetor" height="220"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Setor (Rosca)</h5>
-                            <canvas id="graficoSetorRosca" height="220"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Centro de Custo (Barras)</h5>
-                            <canvas id="graficoCC" height="220"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Centro de Custo (Rosca)</h5>
-                            <canvas id="graficoCCRosca" height="220"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="chart-container">
-                            <h5 class="text-center mb-3">Usuários por Nível</h5>
-                            <canvas id="graficoNivel" height="220"></canvas>
-                        </div>
-                    </div>
+        <div class="main-dashboard-container">
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Usuários por Setor (Barras)</div>
+                    <canvas id="graficoSetor" height="180"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Usuários por Setor (Rosca)</div>
+                    <canvas id="graficoSetorRosca" height="180"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Usuários por Centro de Custo (Barras)</div>
+                    <canvas id="graficoCC" height="180"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Usuários por Centro de Custo (Rosca)</div>
+                    <canvas id="graficoCCRosca" height="180"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Usuários por Nível</div>
+                    <canvas id="graficoNivel" height="180"></canvas>
                 </div>
             </div>
         </div>
@@ -86,7 +124,9 @@
     }
 
     function criarGrafico(id, labels, data, label, tipo = 'bar') {
-        new Chart(document.getElementById(id), {
+        const ctx = document.getElementById(id);
+        if (ctx.chartInstance) ctx.chartInstance.destroy();
+        ctx.chartInstance = new Chart(ctx, {
             type: tipo,
             data: {
                 labels: labels,
@@ -94,8 +134,8 @@
                     label: label,
                     data: data,
                     backgroundColor: gerarCores(labels.length),
-                    borderColor: '#222',
-                    borderWidth: 1
+                    borderColor: '#004D40',
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -110,9 +150,10 @@
                         }
                     }
                 },
+                layout: { padding: 0 },
                 scales: (tipo === 'bar') ? {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                    x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
+                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#004D40', font: { weight: 600 } } },
+                    x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0, color: '#004D40', font: { weight: 600 } } }
                 } : {}
             }
         });

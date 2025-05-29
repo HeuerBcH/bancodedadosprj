@@ -18,8 +18,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -29,17 +29,12 @@
         </nav>
     </aside>
     <main class="content">
-        <h1 class="mb-4 text-center" style="color:#ff9800;">Gerenciamento de Clientes</h1>
 
-        <!-- Botão de visualização da lista -->
-        <div class="text-center mb-4">
-            <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Clientes</button>
-        </div>
-
-        <!-- Formulário -->
-        <div class="card shadow-sm mb-5">
-            <div class="card-header bg-primary text-white">Novo Cliente</div>
-            <div class="card-body">
+        <div class="card shadow-sm mb-5 cliente-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-user-plus me-2"></i><span id="formTitle">Novo Cliente</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
                 <form id="clienteForm">
                     <div class="row g-3">
                         <div class="col-md-6"><input type="text" class="form-control" id="nome_cliente" placeholder="Nome do Cliente" required></div>
@@ -84,18 +79,42 @@
                         </div>
                         <div class="col-md-6"><input type="text" class="form-control" id="cep" placeholder="CEP" required></div>
                     </div>
-                    <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
-                    <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <!-- Lista de clientes (oculta inicialmente) -->
-        <div id="listaClientes" class="card shadow-sm d-none">
-            <div class="card-header bg-secondary text-white">Clientes Cadastrados</div>
-            <ul class="list-group list-group-flush" id="clienteList">
-                <!-- Clientes serão inseridos aqui -->
-            </ul>
+        <div id="listaClientes" class="clientes-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE CLIENTES</b></h3>
+                <a href="/cliente-dashboard.html" class="btn btn-outline-primary" style="color:#004D40; border-color:#004D40;">
+                    <i class="fas fa-chart-bar me-1"></i> Dashboard
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">Nome</th>
+                            <th style="color:#fff;">Email</th>
+                            <th style="color:#fff;">Telefone</th>
+                            <th style="color:#fff;">Cidade</th>
+                            <th style="color:#fff;">Estado</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clienteList">
+                        <!-- Clientes serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
@@ -110,19 +129,29 @@
                 const clienteList = document.getElementById("clienteList");
                 clienteList.innerHTML = "";
 
+                if (!data.length) {
+                    clienteList.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Nenhum cliente cadastrado.</td></tr>`;
+                    return;
+                }
+
                 data.forEach(cliente => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.innerHTML = `
-                        <div>
-                            <strong>${cliente.nome_cliente}</strong> | ${cliente.email} | ${cliente.telefone} | ${cliente.cidade}/${cliente.estado}
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-warning me-2" onclick="editarCliente(${cliente.id_cliente})">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deletarCliente(${cliente.id_cliente})">Excluir</button>
-                        </div>
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${cliente.nome_cliente}</td>
+                        <td style="color:#555;">${cliente.email}</td>
+                        <td style="color:#555;">${cliente.telefone}</td>
+                        <td style="color:#555;">${cliente.cidade}</td>
+                        <td style="color:#555;">${cliente.estado}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarCliente(${cliente.id_cliente})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarCliente(${cliente.id_cliente})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     `;
-                    clienteList.appendChild(li);
+                    clienteList.appendChild(tr);
                 });
             });
     }
@@ -149,10 +178,9 @@
                 document.getElementById("telefone").value = cliente.telefone;
                 document.getElementById("email").value = cliente.email;
 
-                document.querySelector("#clienteForm button").textContent = "Atualizar";
-                document.querySelector(".card-header").textContent = "Editar Cliente";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
+                document.getElementById("formTitle").textContent = "Editar Cliente";
                 document.getElementById("cancelarBtn").classList.remove("d-none");
-
             });
     }
 
@@ -183,27 +211,85 @@
             carregarClientes();
             this.reset();
             clienteEditando = null;
-            document.querySelector("#clienteForm button").textContent = "Cadastrar";
-            document.querySelector(".card-header").textContent = "Novo Cliente";
+            document.getElementById("submitBtnText").textContent = "Cadastrar";
+            document.getElementById("formTitle").textContent = "Novo Cliente";
+            document.getElementById("cancelarBtn").classList.add("d-none");
         });
     });
 
-    function alternarLista() {
-        const lista = document.getElementById("listaClientes");
-        lista.classList.toggle("d-none");
-        if (!lista.classList.contains("d-none")) {
-            carregarClientes();
-        }
-    }
     function cancelarEdicao() {
         document.getElementById("clienteForm").reset();
         clienteEditando = null;
 
-        document.querySelector("#clienteForm button").textContent = "Cadastrar";
-        document.querySelector(".card-header").textContent = "Novo Cliente";
-
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("formTitle").textContent = "Novo Cliente";
         document.getElementById("cancelarBtn").classList.add("d-none");
     }
+
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarClientes;
 </script>
+<style>
+    .clientes-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .cliente-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .cliente-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .cliente-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .cliente-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .cliente-form-card .form-control, .cliente-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .cliente-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .cliente-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .cliente-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .cliente-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .clientes-list-card { padding: 1rem; }
+        .cliente-form-card .card-body { padding: 1rem; }
+    }
+</style>
 </body>
 </html>

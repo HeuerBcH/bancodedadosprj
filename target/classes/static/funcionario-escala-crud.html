@@ -18,8 +18,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -29,15 +29,11 @@
         </nav>
     </aside>
     <main class="content">
-        <h1 class="mb-4 text-center" style="color:#ff9800;">Vínculo Funcionário x Escala de Trabalho</h1>
-
-        <div class="text-center mb-4">
-            <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Vínculos</button>
-        </div>
-
-        <div class="card shadow-sm mb-5">
-            <div class="card-header bg-primary text-white">Novo Vínculo</div>
-            <div class="card-body">
+        <div class="card shadow-sm mb-5 funcionario-escala-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-user-clock me-2"></i><span id="formTitle">Novo Vínculo Funcionário x Escala</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
                 <form id="funcionarioEscalaForm">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -49,17 +45,44 @@
                             <select class="form-select" id="escala" required></select>
                         </div>
                     </div>
-                    <button class="btn btn-success mt-4" type="submit">Vincular</button>
-                    <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Vincular</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <div id="listaVinculos" class="card shadow-sm d-none">
-            <div class="card-header bg-secondary text-white">Vínculos Cadastrados</div>
-            <ul class="list-group list-group-flush" id="vinculoList">
-                <!-- Vínculos serão inseridos aqui -->
-            </ul>
+        <div id="listaVinculos" class="funcionario-escala-list-card d-none">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>VÍNCULOS FUNCIONÁRIO x ESCALA</b></h3>
+                <button class="btn btn-outline-primary" onclick="alternarLista()">
+                    <i class="fas fa-eye"></i> Ocultar Lista
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">Funcionário</th>
+                            <th style="color:#fff;">Escala</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vinculoList">
+                        <!-- Vínculos serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="text-center mb-4">
+            <button class="btn btn-outline-primary" onclick="alternarLista()" id="btnVisualizarVinculos">
+                <i class="fas fa-eye"></i> Visualizar Vínculos
+            </button>
         </div>
     </main>
 </div>
@@ -107,6 +130,11 @@
                 const vinculoList = document.getElementById("vinculoList");
                 vinculoList.innerHTML = "";
 
+                if (!data.length) {
+                    vinculoList.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-4">Nenhum vínculo cadastrado.</td></tr>`;
+                    return;
+                }
+
                 data.forEach(vinculo => {
                     const funcionario = vinculo.funcionario;
                     const escala = vinculo.escalaDeTrabalho;
@@ -115,18 +143,17 @@
                     const nomeFuncionario = funcionario ? funcionario.nome : "";
                     const escalaInfo = escala ? `${escala.horas_semanais}h (${escala.dias_semana})` : "";
 
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.innerHTML = `
-                        <div>
-                            <strong>Funcionário:</strong> ${idFuncionario} - ${nomeFuncionario} |
-                            <strong>Escala:</strong> ${idEscala} - ${escalaInfo}
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-danger" onclick="deletarVinculo(${idFuncionario},${idEscala})">Excluir</button>
-                        </div>
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="color:#555;"><b>${idFuncionario}</b> - ${nomeFuncionario}</td>
+                        <td style="color:#555;"><b>${idEscala}</b> - ${escalaInfo}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarVinculo(${idFuncionario},${idEscala})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     `;
-                    vinculoList.appendChild(li);
+                    vinculoList.appendChild(tr);
                 });
             });
     }
@@ -159,8 +186,8 @@
                 carregarVinculos();
                 this.reset();
                 vinculoEditando = null;
-                document.querySelector("#funcionarioEscalaForm button").textContent = "Vincular";
-                document.querySelector(".card-header").textContent = "Novo Vínculo";
+                document.getElementById("submitBtnText").textContent = "Vincular";
+                document.getElementById("formTitle").textContent = "Novo Vínculo Funcionário x Escala";
                 document.getElementById("cancelarBtn").classList.add("d-none");
             } else {
                 res.text().then(msg => alert("Erro ao salvar: " + msg));
@@ -171,16 +198,21 @@
     function cancelarEdicao() {
         document.getElementById("funcionarioEscalaForm").reset();
         vinculoEditando = null;
-        document.querySelector("#funcionarioEscalaForm button").textContent = "Vincular";
-        document.querySelector(".card-header").textContent = "Novo Vínculo";
+        document.getElementById("submitBtnText").textContent = "Vincular";
+        document.getElementById("formTitle").textContent = "Novo Vínculo Funcionário x Escala";
         document.getElementById("cancelarBtn").classList.add("d-none");
     }
 
     function alternarLista() {
         const lista = document.getElementById("listaVinculos");
-        lista.classList.toggle("d-none");
-        if (!lista.classList.contains("d-none")) {
+        const btn = document.getElementById("btnVisualizarVinculos");
+        if (lista.classList.contains("d-none")) {
+            lista.classList.remove("d-none");
             carregarVinculos();
+            if (btn) btn.style.display = "none";
+        } else {
+            lista.classList.add("d-none");
+            if (btn) btn.style.display = "";
         }
     }
 
@@ -190,5 +222,67 @@
         carregarEscalas();
     };
 </script>
+<style>
+    .funcionario-escala-form-card, .funcionario-escala-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .funcionario-escala-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .funcionario-escala-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .funcionario-escala-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .funcionario-escala-form-card .form-control, .funcionario-escala-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .funcionario-escala-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .funcionario-escala-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .funcionario-escala-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .funcionario-escala-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    .funcionario-escala-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    @media (max-width: 700px) {
+        .funcionario-escala-list-card, .funcionario-escala-form-card { padding: 1rem; }
+        .funcionario-escala-form-card .card-body { padding: 1rem; }
+    }
+</style>
 </body>
 </html>

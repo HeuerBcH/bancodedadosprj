@@ -2,13 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard de Escalas de Trabalho</title>
+    <title>Dashboard de Atividades</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/inicio.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Mantém o alinhamento e visual do sistema */
+        body {
+            background: #f6f8f7;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
         .main-dashboard-container {
             max-width: 1100px;
             margin: 0 auto;
@@ -120,34 +123,48 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
                     <div class="stat-box h-100">
-                        <div class="stat-label">Total de Escalas</div>
-                        <div class="stat-value" id="totalEscalas">-</div>
+                        <div class="stat-label">Total de Atividades</div>
+                        <div class="stat-value" id="totalAtividades">-</div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stat-box h-100">
-                        <div class="stat-label">Média de Horas Semanais</div>
-                        <div class="stat-value" id="mediaHoras">-</div>
+                        <div class="stat-label">Atividades Internas</div>
+                        <div class="stat-value" id="totalInternas">-</div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stat-box h-100">
-                        <div class="stat-label">Escala Mais Frequente</div>
-                        <div class="stat-value" id="escalaFrequente">-</div>
+                        <div class="stat-label">Atividades Externas</div>
+                        <div class="stat-value" id="totalExternas">-</div>
                     </div>
                 </div>
             </div>
             <div class="row g-4">
                 <div class="col-lg-6 d-flex">
                     <div class="chart-container w-100">
-                        <div class="chart-title">Distribuição por Horas Semanais</div>
-                        <canvas id="graficoHoras"></canvas>
+                        <div class="chart-title">Atividades por Tipo</div>
+                        <canvas id="graficoTipo"></canvas>
                     </div>
                 </div>
                 <div class="col-lg-6 d-flex">
                     <div class="chart-container w-100">
-                        <div class="chart-title">Distribuição por Dias da Semana</div>
-                        <canvas id="graficoDias"></canvas>
+                        <div class="chart-title">Atividades por Funcionário (Top 5)</div>
+                        <canvas id="graficoFuncionario"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4 mt-2">
+                <div class="col-lg-6 d-flex">
+                    <div class="chart-container w-100">
+                        <div class="chart-title">Atividades por Cliente (Top 5)</div>
+                        <canvas id="graficoCliente"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-flex">
+                    <div class="chart-container w-100">
+                        <div class="chart-title">Atividades por Status</div>
+                        <canvas id="graficoStatus"></canvas>
                     </div>
                 </div>
             </div>
@@ -155,7 +172,7 @@
     </main>
 </div>
 <script>
-    const API_BASE = 'http://localhost:8081/escala-de-trabalho';
+    const API_BASE = '/atividade';
 
     function gerarCores(qtd) {
         const cores = [
@@ -167,36 +184,10 @@
         return arr;
     }
 
-    function carregarEstatisticas() {
-        fetch(API_BASE)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('totalEscalas').textContent = data.length;
-
-                let totalHoras = 0;
-                let freq = {};
-                let maxFreq = 0;
-                let horasMaisFrequente = '';
-
-                data.forEach(e => {
-                    totalHoras += Number(e.horas_semanais);
-                    const key = `${e.horas_semanais}|${e.dias_semana}`;
-                    freq[key] = (freq[key] || 0) + 1;
-                    if (freq[key] > maxFreq) {
-                        maxFreq = freq[key];
-                        horasMaisFrequente = e.horas_semanais;
-                    }
-                });
-
-                document.getElementById('mediaHoras').textContent = data.length ? (totalHoras / data.length).toFixed(1) + 'h' : '-';
-                document.getElementById('escalaFrequente').textContent = horasMaisFrequente
-                    ? `${horasMaisFrequente}h`
-                    : '-';
-            });
-    }
-
-    function criarGrafico(id, labels, data, label, tipo = 'bar') {
-        new Chart(document.getElementById(id), {
+    function criarGrafico(id, labels, data, label, tipo = 'bar', options = {}) {
+        const ctx = document.getElementById(id);
+        if (ctx.chartInstance) ctx.chartInstance.destroy();
+        ctx.chartInstance = new Chart(ctx, {
             type: tipo,
             data: {
                 labels: labels,
@@ -208,10 +199,10 @@
                     borderWidth: 2
                 }]
             },
-            options: {
+            options: Object.assign({
                 responsive: true,
                 plugins: {
-                    legend: { display: false },
+                    legend: { display: tipo !== 'bar' },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -220,30 +211,85 @@
                         }
                     }
                 },
-                layout: {
-                    padding: 0
-                },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#004D40', font: { weight: 600 } } },
+                layout: { padding: 0 },
+                scales: tipo === 'bar' || tipo === 'line' ? {
+                    y: { beginAtZero: true, ticks: { color: '#004D40', font: { weight: 600 } } },
                     x: { ticks: { color: '#004D40', font: { weight: 600 } } }
-                }
-            }
+                } : {}
+            }, options)
         });
     }
 
-    function carregarGrafico(endpoint, canvasId, label, tipo = 'bar') {
-        fetch(`${API_BASE}/${endpoint}`)
+    function carregarEstatisticas() {
+        fetch(API_BASE)
             .then(res => res.json())
-            .then(data => {
-                const labels = Object.keys(data);
-                const values = Object.values(data);
-                criarGrafico(canvasId, labels, values, label, tipo);
+            .then(atividades => {
+                document.getElementById('totalAtividades').textContent = atividades.length;
+
+                let internas = 0, externas = 0;
+                atividades.forEach(a => {
+                    if (a.interna) internas++;
+                    else externas++;
+                });
+                document.getElementById('totalInternas').textContent = internas;
+                document.getElementById('totalExternas').textContent = externas;
+            });
+    }
+
+    function carregarGraficos() {
+        // Atividades por Tipo
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(atividades => {
+                let internas = 0, externas = 0;
+                atividades.forEach(a => {
+                    if (a.interna) internas++;
+                    else externas++;
+                });
+                criarGrafico('graficoTipo', ['Interna', 'Externa'], [internas, externas], 'Tipo', 'pie');
+            });
+
+        // Atividades por Funcionário (Top 5)
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(atividades => {
+                const funcionarios = {};
+                atividades.forEach(a => {
+                    const nome = a.funcionario && a.funcionario.nome ? a.funcionario.nome : 'Indefinido';
+                    funcionarios[nome] = (funcionarios[nome] || 0) + 1;
+                });
+                const top = Object.entries(funcionarios).sort((a,b) => b[1]-a[1]).slice(0,5);
+                criarGrafico('graficoFuncionario', top.map(e=>e[0]), top.map(e=>e[1]), 'Funcionário', 'bar', {indexAxis:'y'});
+            });
+
+        // Atividades por Cliente (Top 5)
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(atividades => {
+                const clientes = {};
+                atividades.forEach(a => {
+                    const nome = a.cliente && a.cliente.nome_cliente ? a.cliente.nome_cliente : 'Indefinido';
+                    clientes[nome] = (clientes[nome] || 0) + 1;
+                });
+                const top = Object.entries(clientes).sort((a,b) => b[1]-a[1]).slice(0,5);
+                criarGrafico('graficoCliente', top.map(e=>e[0]), top.map(e=>e[1]), 'Cliente', 'bar', {indexAxis:'y'});
+            });
+
+        // Atividades por Status
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(atividades => {
+                const status = {};
+                atividades.forEach(a => {
+                    const s = a.status || 'Indefinido';
+                    status[s] = (status[s] || 0) + 1;
+                });
+                criarGrafico('graficoStatus', Object.keys(status), Object.values(status), 'Status', 'pie');
             });
     }
 
     carregarEstatisticas();
-    carregarGrafico('count-by-horas', 'graficoHoras', 'Escalas por Horas Semanais', 'bar');
-    carregarGrafico('count-by-dias', 'graficoDias', 'Escalas por Dias da Semana', 'pie');
+    carregarGraficos();
 </script>
 </body>
 </html>

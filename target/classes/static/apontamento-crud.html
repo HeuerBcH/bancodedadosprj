@@ -18,8 +18,8 @@
         <nav class="nav">
             <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
             <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
-            <a href="/atividade-info.html"><i class="fas fa-tasks"></i> Atividade</a>
-            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
             <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
             <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
             <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
@@ -29,15 +29,12 @@
         </nav>
     </aside>
     <main class="content">
-        <h1 class="mb-4 text-center" style="color:#ff9800;">Gerenciamento de Apontamentos</h1>
 
-        <div class="text-center mb-4">
-            <button class="btn btn-outline-primary" onclick="alternarLista()">Visualizar Lista de Apontamentos</button>
-        </div>
-
-        <div class="card shadow-sm mb-5">
-            <div class="card-header bg-primary text-white">Novo Apontamento</div>
-            <div class="card-body">
+        <div class="card shadow-sm mb-5 apontamento-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-clipboard-list me-2"></i><span id="formTitle">Novo Apontamento</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
                 <form id="apontamentoForm">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -55,38 +52,74 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <input type="time" class="form-control" id="hora_inicio" placeholder="Hora Início" required>
+                            <label for="hora_inicio" class="form-label">Hora Início</label>
+                            <input type="time" class="form-control" id="hora_inicio" required>
                         </div>
                         <div class="col-md-3">
-                            <input type="time" class="form-control" id="hora_fim" placeholder="Hora Fim" required>
+                            <label for="hora_fim" class="form-label">Hora Fim</label>
+                            <input type="time" class="form-control" id="hora_fim" required>
                         </div>
                         <div class="col-md-3">
-                            <input type="text" class="form-control" id="centro_de_custo" placeholder="Centro de Custo">
+                            <label for="centro_de_custo" class="form-label">Centro de Custo</label>
+                            <input type="text" class="form-control" id="centro_de_custo">
                         </div>
                         <div class="col-md-3">
-                            <input type="date" class="form-control" id="data_apontamento" placeholder="Data Apontamento" required>
+                            <label for="data_apontamento" class="form-label">Data Apontamento</label>
+                            <input type="date" class="form-control" id="data_apontamento" required>
                         </div>
                         <div class="col-md-3">
-                            <input type="date" class="form-control" id="data_preenchimento" placeholder="Data Preenchimento" required>
+                            <label for="data_preenchimento" class="form-label">Data Preenchimento</label>
+                            <input type="date" class="form-control" id="data_preenchimento" required>
                         </div>
                         <div class="col-md-3">
+                            <label for="aprovado" class="form-label">Aprovado?</label>
                             <select class="form-select" id="aprovado" required>
                                 <option value="false">Não aprovado</option>
                                 <option value="true">Aprovado</option>
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
-                    <button id="cancelarBtn" type="button" class="btn btn-secondary mt-4 ms-2 d-none" onclick="cancelarEdicao()">Cancelar Edição</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-        <div id="listaApontamentos" class="card shadow-sm d-none">
-            <div class="card-header bg-secondary text-white">Apontamentos Cadastrados</div>
-            <ul class="list-group list-group-flush" id="apontamentoList">
-                <!-- Apontamentos serão inseridos aqui -->
-            </ul>
+        <div id="listaApontamentos" class="apontamentos-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE APONTAMENTOS</b></h3>
+                <a href="/apontamento-dashboard.html" class="btn btn-outline-primary" style="color:#004D40; border-color:#004D40;">
+                    <i class="fas fa-chart-bar me-1"></i> Dashboard
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">ID</th>
+                            <th style="color:#fff;">Atividade</th>
+                            <th style="color:#fff;">Funcionário</th>
+                            <th style="color:#fff;">Feriado</th>
+                            <th style="color:#fff;">Data</th>
+                            <th style="color:#fff;">Início</th>
+                            <th style="color:#fff;">Fim</th>
+                            <th style="color:#fff;">Centro de Custo</th>
+                            <th style="color:#fff;">Preenchimento</th>
+                            <th style="color:#fff;">Aprovado</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apontamentoList">
+                        <!-- Apontamentos serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
@@ -97,7 +130,7 @@
     const funcionarioUrl = "http://localhost:8081/funcionario";
     const feriadoUrl = "http://localhost:8081/feriado";
     let apontamentoEditando = null;
-    let feriadosCache = []; // Armazena os feriados carregados
+    let feriadosCache = [];
 
     function carregarAtividades() {
         fetch(atividadeUrl)
@@ -133,13 +166,13 @@
         fetch(feriadoUrl)
             .then(res => res.json())
             .then(data => {
-                feriadosCache = data; // Salva todos os feriados para consulta posterior
+                feriadosCache = data;
                 const select = document.getElementById("feriado");
                 select.innerHTML = '<option value="">Nenhum</option>';
                 data.forEach(feriado => {
                     const option = document.createElement("option");
                     option.value = feriado.id_feriado;
-                    option.textContent = `${feriado.nomeFeriado}`;
+                    option.textContent = `${feriado.nomeFeriado || feriado.nome_feriado}`;
                     select.appendChild(option);
                 });
             });
@@ -152,26 +185,34 @@
                 const apontamentoList = document.getElementById("apontamentoList");
                 apontamentoList.innerHTML = "";
 
+                if (!data.length) {
+                    apontamentoList.innerHTML = `<tr><td colspan="11" class="text-center text-muted py-4">Nenhum apontamento cadastrado.</td></tr>`;
+                    return;
+                }
+
                 data.forEach(apontamento => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.innerHTML = `
-                        <div>
-                            <strong>ID:</strong> ${apontamento.id_apontamento} |
-                            <strong>Atividade:</strong> ${apontamento.atividade ? apontamento.atividade.descricao.substring(0, 30) : ''} |
-                            <strong>Funcionário:</strong> ${apontamento.funcionario ? apontamento.funcionario.nome : ''} |
-                            <strong>Feriado:</strong> ${apontamento.feriado ? apontamento.feriado.nome_feriado : 'Nenhum'} |
-                            <strong>Data:</strong> ${apontamento.data_apontamento} |
-                            <strong>Início:</strong> ${apontamento.hora_inicio} |
-                            <strong>Fim:</strong> ${apontamento.hora_fim} |
-                            <strong>Aprovado:</strong> ${apontamento.aprovado ? 'Sim' : 'Não'}
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-warning me-2" onclick="editarApontamento(${apontamento.id_apontamento})">Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deletarApontamento(${apontamento.id_apontamento})">Excluir</button>
-                        </div>
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${apontamento.id_apontamento}</td>
+                        <td style="color:#555;">${apontamento.atividade ? apontamento.atividade.descricao.substring(0, 30) : ''}</td>
+                        <td style="color:#555;">${apontamento.funcionario ? apontamento.funcionario.nome : ''}</td>
+                        <td style="color:#555;">${apontamento.feriado ? (apontamento.feriado.nomeFeriado || apontamento.feriado.nome_feriado) : 'Nenhum'}</td>
+                        <td style="color:#555;">${apontamento.data_apontamento}</td>
+                        <td style="color:#555;">${apontamento.hora_inicio}</td>
+                        <td style="color:#555;">${apontamento.hora_fim}</td>
+                        <td style="color:#555;">${apontamento.centro_de_custo || '-'}</td>
+                        <td style="color:#555;">${apontamento.data_preenchimento}</td>
+                        <td style="color:#555;">${apontamento.aprovado ? 'Sim' : 'Não'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarApontamento(${apontamento.id_apontamento})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarApontamento(${apontamento.id_apontamento})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     `;
-                    apontamentoList.appendChild(li);
+                    apontamentoList.appendChild(tr);
                 });
             });
     }
@@ -197,14 +238,13 @@
                 document.getElementById("funcionario").value = apontamento.funcionario ? apontamento.funcionario.id_funcionario : "";
                 document.getElementById("feriado").value = apontamento.feriado ? apontamento.feriado.id_feriado : "";
 
-                document.querySelector("#apontamentoForm button").textContent = "Atualizar";
-                document.querySelector(".card-header").textContent = "Editar Apontamento";
+                document.getElementById("formTitle").textContent = "Editar Apontamento";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
                 document.getElementById("cancelarBtn").classList.remove("d-none");
             });
     }
 
     function isValidDate(dateStr) {
-        // Regex para yyyy-MM-dd
         return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
     }
 
@@ -220,25 +260,21 @@
         const data_apontamento = document.getElementById("data_apontamento").value;
         const data_preenchimento = document.getElementById("data_preenchimento").value;
 
-        // Validação de campos obrigatórios
         if (!hora_inicio || !hora_fim || !data_apontamento || !data_preenchimento) {
             alert("Preencha todos os campos obrigatórios.");
             return;
         }
 
-        // Validação de formato de data
         if (!isValidDate(data_apontamento) || !isValidDate(data_preenchimento)) {
             alert("As datas devem estar no formato AAAA-MM-DD.");
             return;
         }
 
-        // Validação de formato de hora
         if (!/^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/.test(hora_inicio) || !/^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/.test(hora_fim)) {
             alert("As horas devem estar no formato HH:mm ou HH:mm:ss.");
             return;
         }
 
-        // Validação do feriado permite lançamento
         const feriadoValue = document.getElementById("feriado").value;
         if (feriadoValue) {
             const feriadoSelecionado = feriadosCache.find(f => f.id_feriado == feriadoValue);
@@ -275,8 +311,8 @@
                 carregarApontamentos();
                 this.reset();
                 apontamentoEditando = null;
-                document.querySelector("#apontamentoForm button").textContent = "Cadastrar";
-                document.querySelector(".card-header").textContent = "Novo Apontamento";
+                document.getElementById("submitBtnText").textContent = "Cadastrar";
+                document.getElementById("formTitle").textContent = "Novo Apontamento";
                 document.getElementById("cancelarBtn").classList.add("d-none");
             } else {
                 res.text().then(msg => alert("Erro ao salvar: " + msg));
@@ -287,25 +323,80 @@
     function cancelarEdicao() {
         document.getElementById("apontamentoForm").reset();
         apontamentoEditando = null;
-        document.querySelector("#apontamentoForm button").textContent = "Cadastrar";
-        document.querySelector(".card-header").textContent = "Novo Apontamento";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("formTitle").textContent = "Novo Apontamento";
         document.getElementById("cancelarBtn").classList.add("d-none");
     }
 
-    function alternarLista() {
-        const lista = document.getElementById("listaApontamentos");
-        lista.classList.toggle("d-none");
-        if (!lista.classList.contains("d-none")) {
-            carregarApontamentos();
-        }
-    }
-
-    // Carregar selects ao abrir a página
+    // Carregar selects e lista ao abrir a página
     window.onload = function() {
         carregarAtividades();
         carregarFuncionarios();
         carregarFeriados();
+        carregarApontamentos();
     };
 </script>
+<style>
+    .apontamentos-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .apontamento-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .apontamento-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .apontamento-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .apontamento-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .apontamento-form-card .form-control, .apontamento-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .apontamento-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .apontamento-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .apontamento-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .apontamento-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .apontamentos-list-card { padding: 1rem; }
+        .apontamento-form-card .card-body { padding: 1rem; }
+    }
+</style>
 </body>
 </html>
