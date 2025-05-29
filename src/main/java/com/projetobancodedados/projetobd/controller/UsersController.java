@@ -88,7 +88,6 @@ public class UsersController {
             .collect(Collectors.groupingBy(Users::getSetor, Collectors.counting()));
     }
 
-    // Usuários por centro de custo padrão
     @GetMapping("/count-by-ccpadrao")
     public Map<Integer, Long> countByCcpadrao() {
         return usersRepository.findAll().stream()

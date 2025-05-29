@@ -70,7 +70,6 @@ public class FuncionarioController {
             for (Apontamento a : apFunc) {
                 if (a.getData_apontamento() == null || a.getHora_inicio() == null || a.getHora_fim() == null) continue;
 
-                // Suporte para java.sql.Date e java.util.Date
                 LocalDate data;
                 Date dataAp = a.getData_apontamento();
                 if (dataAp instanceof java.sql.Date) {

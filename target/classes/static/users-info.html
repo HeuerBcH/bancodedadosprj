@@ -123,13 +123,13 @@
                 <div class="col-md-6 col-12">
                     <div class="chart-container">
                         <h5 class="text-center mb-3" style="color:#004D40;">Usuários por Centro de Custo (Barras)</h5>
-                        <canvas id="graficoCC" height="180"></canvas>
+                        <canvas id="graficoCC" height="180" width="350"></canvas>
                     </div>
                 </div>
                 <div class="col-md-6 col-12">
                     <div class="chart-container">
                         <h5 class="text-center mb-3" style="color:#004D40;">Usuários por Setor (Rosca)</h5>
-                        <canvas id="graficoSetorRosca" height="180"></canvas>
+                        <canvas id="graficoSetorRosca" height="180" width="350"></canvas>
                     </div>
                 </div>
             </div>
@@ -201,57 +201,62 @@
             });
     }
 
-    function renderizarDashboard(data) {
-        // Usuários por Centro de Custo (barras)
-        const ccMap = {};
-        data.forEach(u => {
-            ccMap[u.ccpadrao] = (ccMap[u.ccpadrao] || 0) + 1;
-        });
-        const ccLabels = Object.keys(ccMap);
-        const ccValues = Object.values(ccMap);
-        if (window.graficoCC) window.graficoCC.destroy();
-        window.graficoCC = new Chart(document.getElementById('graficoCC'), {
-            type: 'bar',
-            data: {
-                labels: ccLabels,
-                datasets: [{
-                    label: 'Usuários',
-                    data: ccValues,
-                    backgroundColor: gerarCores(ccLabels.length),
-                    borderColor: '#004D40',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, stepSize: 1 } }
-            }
-        });
+    // Corrija para garantir que os gráficos sejam renderizados após o DOM estar pronto
+    document.addEventListener('DOMContentLoaded', function() {
+        carregarUsuarios();
+    });
 
-        // Usuários por Setor (rosca)
-        const setorMap = {};
-        data.forEach(u => {
-            setorMap[u.setor] = (setorMap[u.setor] || 0) + 1;
-        });
-        const setorLabels = Object.keys(setorMap);
-        const setorValues = Object.values(setorMap);
-        if (window.graficoSetorRosca) window.graficoSetorRosca.destroy();
-        window.graficoSetorRosca = new Chart(document.getElementById('graficoSetorRosca'), {
-            type: 'doughnut',
-            data: {
-                labels: setorLabels,
-                datasets: [{
-                    label: 'Usuários',
-                    data: setorValues,
-                    backgroundColor: gerarCores(setorLabels.length),
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                plugins: { legend: { position: 'bottom' } }
-            }
-        });
+    function renderizarDashboard(data) {
+        fetch(apiUrl + "/count-by-ccpadrao")
+            .then(res => res.json())
+            .then(ccMap => {
+                const ccLabels = Object.keys(ccMap);
+                const ccValues = Object.values(ccMap);
+                if (window.graficoCC) window.graficoCC.destroy();
+                const ctxCC = document.getElementById('graficoCC').getContext('2d');
+                window.graficoCC = new Chart(ctxCC, {
+                    type: 'bar',
+                    data: {
+                        labels: ccLabels,
+                        datasets: [{
+                            label: 'Usuários',
+                            data: ccValues,
+                            backgroundColor: gerarCores(ccLabels.length),
+                            borderColor: '#004D40',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, stepSize: 1 } }
+                    }
+                });
+            });
+
+        fetch(apiUrl + "/count-by-setor")
+            .then(res => res.json())
+            .then(setorMap => {
+                const setorLabels = Object.keys(setorMap);
+                const setorValues = Object.values(setorMap);
+                if (window.graficoSetorRosca) window.graficoSetorRosca.destroy();
+                const ctxRosca = document.getElementById('graficoSetorRosca').getContext('2d');
+                window.graficoSetorRosca = new Chart(ctxRosca, {
+                    type: 'doughnut',
+                    data: {
+                        labels: setorLabels,
+                        datasets: [{
+                            label: 'Usuários',
+                            data: setorValues,
+                            backgroundColor: gerarCores(setorLabels.length),
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            });
     }
 
     function renderizarUsuarios() {
@@ -330,8 +335,6 @@
                 });
         }
     }
-
-    window.onload = carregarUsuarios;
 </script>
 </body>
 </html>
