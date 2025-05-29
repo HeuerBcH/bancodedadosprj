@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Informações dos Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="/cliente-info.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/sidebar.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+            <a href="/cliente-info.html" class="active"><i class="fas fa-chart-bar"></i> Info Clientes</a>
+        </nav>
+    </aside>
+    <main class="content">
+        <h1 class="mb-4 text-center">Informações dos Clientes</h1>
+
+        <!-- DASHBOARD DE CLIENTES -->
+        <div class="card dashboard-clientes mb-5" style="background: #fafbfc; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div class="card-header bg-primary text-white" style="font-size:1.3rem; font-weight:600;">
+                <i class="fas fa-chart-bar"></i> Dashboard de Clientes
+            </div>
+            <div class="card-body">
+                <div class="row g-4 justify-content-center">
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Clientes por Bairro</h5>
+                            <canvas id="graficoBairro" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Clientes por Estado</h5>
+                            <canvas id="graficoEstado" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Clientes por Cidade</h5>
+                            <canvas id="graficoCidade" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Clientes por CEP</h5>
+                            <canvas id="graficoCep" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Clientes por Domínio de Email</h5>
+                            <canvas id="graficoEmailDomain" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELA DE CLIENTES -->
+        <div class="table-responsive">
+            <table id="clientes-table" class="table table-striped table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Bairro</th>
+                        <th>Cidade</th>
+                        <th>Estado</th>
+                        <th>CEP</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<script>
+    const API_BASE = 'http://localhost:8081/cliente';
+
+    fetch(API_BASE)
+        .then(res => res.json())
+        .then(clientes => {
+            const tbody = document.querySelector('#clientes-table tbody');
+            clientes.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.id_cliente}</td>
+                    <td>${c.nome_cliente}</td>
+                    <td>${c.bairro}</td>
+                    <td>${c.cidade}</td>
+                    <td>${c.estado}</td>
+                    <td>${c.cep}</td>
+                    <td>${c.email}</td>
+                    <td>${c.telefone}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+
+    // Gera cores distintas para os gráficos
+    function gerarCores(qtd) {
+        const cores = [
+            '#ff9800', '#2196f3', '#4caf50', '#e91e63', '#9c27b0', '#00bcd4', '#ffc107', '#8bc34a', '#f44336', '#607d8b',
+            '#3f51b5', '#009688', '#cddc39', '#ff5722', '#795548', '#673ab7', '#bdbdbd', '#ffb300', '#43a047', '#d32f2f'
+        ];
+        let arr = [];
+        for (let i = 0; i < qtd; i++) arr.push(cores[i % cores.length]);
+        return arr;
+    }
+
+    function criarGrafico(id, labels, data, label, tipo = 'bar') {
+        new Chart(document.getElementById(id), {
+            type: tipo,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: gerarCores(labels.length),
+                    borderColor: '#222',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.parsed.y ?? context.parsed}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function carregarGrafico(endpoint, canvasId, label, tipo = 'bar') {
+        fetch(`${API_BASE}/${endpoint}`)
+            .then(res => res.json())
+            .then(data => {
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                criarGrafico(canvasId, labels, values, label, tipo);
+            });
+    }
+
+    carregarGrafico('count-by-bairro', 'graficoBairro', 'Clientes por Bairro', 'bar');
+    carregarGrafico('count-by-estado', 'graficoEstado', 'Clientes por Estado', 'pie');
+    carregarGrafico('count-by-cidade', 'graficoCidade', 'Clientes por Cidade', 'bar');
+    carregarGrafico('count-by-cep', 'graficoCep', 'Clientes por CEP', 'bar');
+    carregarGrafico('count-by-email-domain', 'graficoEmailDomain', 'Clientes por Domínio de Email', 'doughnut');
+</script>
+</body>
+</html>

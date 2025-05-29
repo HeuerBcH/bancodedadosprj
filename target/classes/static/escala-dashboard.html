@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Escalas de Trabalho</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <!-- ...sidebar igual aos outros arquivos... -->
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+            <a href="/cliente-info.html"><i class="fas fa-chart-bar"></i> Info Clientes</a>
+            <a href="/escala-dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard Escalas</a>
+        </nav>
+    </aside>
+    <main class="content">
+        <h1 class="mb-4 text-center">Dashboard de Escalas de Trabalho</h1>
+        <div class="card mb-5">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-chart-pie"></i> Gráficos de Escalas
+            </div>
+            <div class="card-body">
+                <div class="row g-4 justify-content-center">
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Escalas por Horas Semanais</h5>
+                            <canvas id="graficoHoras" height="220"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="chart-container">
+                            <h5 class="text-center mb-3">Escalas por Dias da Semana</h5>
+                            <canvas id="graficoDias" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    const API_BASE = 'http://localhost:8081/escala-de-trabalho';
+
+    function gerarCores(qtd) {
+        const cores = [
+            '#ff9800', '#2196f3', '#4caf50', '#e91e63', '#9c27b0', '#00bcd4', '#ffc107', '#8bc34a', '#f44336', '#607d8b',
+            '#3f51b5', '#009688', '#cddc39', '#ff5722', '#795548', '#673ab7', '#bdbdbd', '#ffb300', '#43a047', '#d32f2f'
+        ];
+        let arr = [];
+        for (let i = 0; i < qtd; i++) arr.push(cores[i % cores.length]);
+        return arr;
+    }
+
+    function criarGrafico(id, labels, data, label, tipo = 'bar') {
+        new Chart(document.getElementById(id), {
+            type: tipo,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: gerarCores(labels.length),
+                    borderColor: '#222',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.parsed.y ?? context.parsed}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
+                }
+            }
+        });
+    }
+
+    function carregarGrafico(endpoint, canvasId, label, tipo = 'bar') {
+        fetch(`${API_BASE}/${endpoint}`)
+            .then(res => res.json())
+            .then(data => {
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                criarGrafico(canvasId, labels, values, label, tipo);
+            });
+    }
+
+    carregarGrafico('count-by-horas', 'graficoHoras', 'Escalas por Horas Semanais', 'bar');
+    carregarGrafico('count-by-dias', 'graficoDias', 'Escalas por Dias da Semana', 'pie');
+</script>
+</body>
+</html>

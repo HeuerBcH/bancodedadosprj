@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/escala-de-trabalho")
@@ -47,4 +49,21 @@ public class EscalaDeTrabalhoController {
             return ResponseEntity.noContent().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
     }
+
+    // Escalas por horas semanais
+    @GetMapping("/count-by-horas")
+    public Map<Integer, Long> countByHoras() {
+        return escalaDeTrabalhoRepository.findAll().stream()
+            .collect(Collectors.groupingBy(EscalaDeTrabalho::getHoras_semanais, Collectors.counting()));
+    }
+
+    // Escalas por dias da semana (string)
+    @GetMapping("/count-by-dias")
+    public Map<String, Long> countByDias() {
+        return escalaDeTrabalhoRepository.findAll().stream()
+            .collect(Collectors.groupingBy(EscalaDeTrabalho::getDias_semana, Collectors.counting()));
+    }
+
+    // Escalas por tipo de jornada (ex: 5x2, 6x1, etc) - se houver padrão
+    // Se não houver, pode omitir este gráfico
 }

@@ -9,12 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 //Define que essa classe é um controlador REST
 @RestController
 //Define a URL base para todos os endpoints desse controlador
 @RequestMapping("/users")
-
 public class UsersController {
 
     // Injeta automaticamente o repositório no controlador
@@ -80,4 +81,24 @@ public class UsersController {
             .orElse(ResponseEntity.notFound().build());
     }
 	
+	// Usuários por setor
+    @GetMapping("/count-by-setor")
+    public Map<String, Long> countBySetor() {
+        return usersRepository.findAll().stream()
+            .collect(Collectors.groupingBy(Users::getSetor, Collectors.counting()));
+    }
+
+    // Usuários por centro de custo padrão
+    @GetMapping("/count-by-ccpadrao")
+    public Map<Integer, Long> countByCcpadrao() {
+        return usersRepository.findAll().stream()
+            .collect(Collectors.groupingBy(Users::getCcpadrao, Collectors.counting()));
+    }
+
+    // Usuários por nível (admin/comum)
+    @GetMapping("/count-by-nivel")
+    public Map<String, Long> countByNivel() {
+        return usersRepository.findAll().stream()
+            .collect(Collectors.groupingBy(u -> u.isNivel() ? "Admin" : "Usuário", Collectors.counting()));
+    }
 }

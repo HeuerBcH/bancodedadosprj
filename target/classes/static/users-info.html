@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuários do Sistema - Estratégica Engenharia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        .dashboard-users {
+
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .users-list-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 1.5rem;
+        }
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ececec;
+            padding: 1rem 0.5rem;
+            transition: background 0.2s;
+        }
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .user-badge {
+            font-size: 0.95rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .user-badge.admin {
+            background: #ff9800;
+            color: #fff;
+        }
+        .user-badge.comum {
+            background: #bdbdbd;
+            color: #333;
+        }
+        .user-actions button {
+            margin-left: 0.5rem;
+        }
+        .add-user-btn {
+            margin: 2.5rem auto 0 auto;
+            display: block;
+            font-size: 1.1rem;
+            padding: 0.75rem 2.5rem;
+            border-radius: 8px;
+            background: #ff9800;
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .add-user-btn:hover {
+            background: #fb8c00;
+            color: #fff;
+        }
+        @media (max-width: 700px) {
+            .dashboard-users, .users-list-card { padding: 1rem; }
+            .user-info { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-info.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+            <a href="/cliente-info.html" class="active"><i class="fas fa-chart-bar"></i> Info Clientes</a>
+        </nav>
+        </div>
+    </aside>
+    <main class="content">
+        <!-- LISTA DE USUÁRIOS -->
+        <div class="users-list-card mb-4" style="background: #fafbfc; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+            <h3 class="mb-3" style="color:#004D40; font-weight: 500;"><b>Usuários do Sistema</b></h3>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fafbfc;">
+                    <thead style="background: #f5f5f5;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th scope="col" style="font-weight: 500; color: #444;">Nome</th>
+                            <th scope="col" style="font-weight: 500; color: #444;">E-mail</th>
+                            <th scope="col" style="font-weight: 500; color: #444;">Setor</th>
+                            <th scope="col" style="font-weight: 500; color: #444;">Centro de Custo</th>
+                            <th scope="col" style="font-weight: 500; color: #444;">Nível</th>
+                            <th scope="col" class="text-center" style="font-weight: 500; color: #444;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-list">
+                        <!-- Usuários serão inseridos aqui via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BOTÃO ADICIONAR USUÁRIO -->
+        <button class="add-user-btn" onclick="window.location.href='/users-crud.html'">
+            <i class="fas fa-user-plus"></i> Adicionar Usuário
+        </button>
+    </main>
+</div>
+
+<!-- Modal de edição (opcional, pode ser implementado depois) -->
+
+<script>
+    const apiUrl = "http://localhost:8081/users";
+
+    function carregarUsuarios() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const usersList = document.getElementById("users-list");
+                usersList.innerHTML = "";
+
+                if (!data.length) {
+                    usersList.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Nenhum usuário cadastrado.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(user => {
+                    const tr = document.createElement("tr");
+
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${user.username}</td>
+                        <td style="color:#555;">${user.email}</td>
+                        <td style="color:#555;">${user.setor || '-'}</td>
+                        <td style="color:#555;">${user.ccpadrao || '-'}</td>
+                        <td>
+                            <span class="user-badge ${user.nivel ? 'admin' : 'comum'}" style="font-size:0.93rem; padding:0.18rem 0.7rem;">
+                                ${user.nivel ? 'Admin' : 'Usuário'}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editarUsuario(${user.id_user})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarUsuario(${user.id_user})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    usersList.appendChild(tr);
+                });
+            });
+    }
+
+    function editarUsuario(id) {
+        window.location.href = `/users-crud.html?edit=${id}`;
+    }
+
+    function deletarUsuario(id) {
+        if (confirm("Tem certeza que deseja excluir este usuário?")) {
+            fetch(`${apiUrl}/${id}`, { method: "DELETE" })
+                .then(res => {
+                    if (res.ok) {
+                        carregarUsuarios();
+                    } else {
+                        alert("Erro ao excluir usuário.");
+                    }
+                });
+        }
+    }
+
+    window.onload = carregarUsuarios;
+</script>
+</body>
+</html>

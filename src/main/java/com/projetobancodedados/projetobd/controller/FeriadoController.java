@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/feriado")
@@ -51,5 +53,36 @@ public class FeriadoController {
             feriadoRepository.delete(feriado);
             return ResponseEntity.noContent().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // Feriados por mês
+    @GetMapping("/count-by-mes")
+    public Map<String, Long> countByMes() {
+        return feriadoRepository.findAll().stream()
+            .filter(f -> f.getDataFeriado() != null)
+            .collect(Collectors.groupingBy(
+                f -> String.format("%02d", f.getDataFeriado().getMonthValue()),
+                Collectors.counting()
+            ));
+    }
+
+    // Feriados por permissão de lançamento
+    @GetMapping("/count-by-permite-lancamento")
+    public Map<String, Long> countByPermiteLancamento() {
+        return feriadoRepository.findAll().stream()
+            .collect(Collectors.groupingBy(
+                f -> Boolean.TRUE.equals(f.getPermiteLancamento()) ? "Permite" : "Não Permite",
+                Collectors.counting()
+            ));
+    }
+
+    // Feriados por nome
+    @GetMapping("/count-by-nome")
+    public Map<String, Long> countByNome() {
+        return feriadoRepository.findAll().stream()
+            .collect(Collectors.groupingBy(
+                f -> f.getNomeFeriado() != null ? f.getNomeFeriado() : "Desconhecido",
+                Collectors.counting()
+            ));
     }
 }
