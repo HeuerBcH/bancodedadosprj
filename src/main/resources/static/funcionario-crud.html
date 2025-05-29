@@ -32,12 +32,31 @@
         <h1 class="mb-4 text-center" style="color:#ff9800;">Lista de Funcionários</h1>
         <div class="text-center mb-4">
             <button class="btn btn-outline-primary" onclick="carregarFuncionarios()">Atualizar Lista</button>
+            <button class="btn btn-outline-success ms-2" onclick="carregarRelatorio()">Relatório de Produtividade</button>
         </div>
         <div id="listaFuncionarios" class="card shadow-sm mb-5" style="max-width:700px; margin:0 auto;">
             <div class="card-header bg-secondary text-white">Funcionários Cadastrados</div>
             <ul class="list-group list-group-flush" id="funcionarioList">
                 <!-- Funcionários serão inseridos aqui -->
             </ul>
+        </div>
+        <div id="relatorioProdutividade" class="card shadow-sm mb-5" style="display:none; max-width:1000px; margin:0 auto;">
+            <div class="card-header bg-info text-white">Relatório de Produtividade</div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Total de Horas por Mês</th>
+                            <th>Média Horas/Dia</th>
+                            <th>Nº Atividades</th>
+                            <th>Gestor Responsável</th>
+                            <th>Cliente do Contrato</th>
+                        </tr>
+                    </thead>
+                    <tbody id="relatorioBody"></tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
@@ -62,6 +81,31 @@
                     `;
                     funcionarioList.appendChild(li);
                 });
+            });
+        document.getElementById("relatorioProdutividade").style.display = "none";
+    }
+
+    function carregarRelatorio() {
+        fetch(apiUrl + "/relatorio-produtividade")
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById("relatorioBody");
+                tbody.innerHTML = "";
+                data.forEach(item => {
+                    const horasMes = Object.entries(item.horasPorMes)
+                        .map(([mes, horas]) => `<div>${mes}: <b>${horas.toFixed(2)}h</b></div>`).join("");
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${item.nomeFuncionario}</td>
+                        <td>${horasMes}</td>
+                        <td>${item.mediaHorasPorDia}</td>
+                        <td>${item.numeroAtividades}</td>
+                        <td>${item.gestorResponsavel ?? '-'}</td>
+                        <td>${item.clienteContrato ?? '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById("relatorioProdutividade").style.display = "";
             });
     }
 
