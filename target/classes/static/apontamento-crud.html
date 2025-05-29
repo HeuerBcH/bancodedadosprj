@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estratégica Engenharia - Apontamentos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <div class="card shadow-sm mb-5 apontamento-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-clipboard-list me-2"></i><span id="formTitle">Novo Apontamento</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <form id="apontamentoForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="atividade" class="form-label">Atividade</label>
+                            <select class="form-select" id="atividade" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="funcionario" class="form-label">Funcionário</label>
+                            <select class="form-select" id="funcionario" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="feriado" class="form-label">Feriado (opcional)</label>
+                            <select class="form-select" id="feriado">
+                                <option value="">Nenhum</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="hora_inicio" class="form-label">Hora Início</label>
+                            <input type="time" class="form-control" id="hora_inicio" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="hora_fim" class="form-label">Hora Fim</label>
+                            <input type="time" class="form-control" id="hora_fim" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="centro_de_custo" class="form-label">Centro de Custo</label>
+                            <input type="text" class="form-control" id="centro_de_custo">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data_apontamento" class="form-label">Data Apontamento</label>
+                            <input type="date" class="form-control" id="data_apontamento" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data_preenchimento" class="form-label">Data Preenchimento</label>
+                            <input type="date" class="form-control" id="data_preenchimento" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="aprovado" class="form-label">Aprovado?</label>
+                            <select class="form-select" id="aprovado" required>
+                                <option value="false">Não aprovado</option>
+                                <option value="true">Aprovado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="listaApontamentos" class="apontamentos-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE APONTAMENTOS</b></h3>
+                <a href="/apontamento-dashboard.html" class="btn btn-outline-primary" style="color:#004D40; border-color:#004D40;">
+                    <i class="fas fa-chart-bar me-1"></i> Dashboard
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">ID</th>
+                            <th style="color:#fff;">Atividade</th>
+                            <th style="color:#fff;">Funcionário</th>
+                            <th style="color:#fff;">Feriado</th>
+                            <th style="color:#fff;">Data</th>
+                            <th style="color:#fff;">Início</th>
+                            <th style="color:#fff;">Fim</th>
+                            <th style="color:#fff;">Centro de Custo</th>
+                            <th style="color:#fff;">Preenchimento</th>
+                            <th style="color:#fff;">Aprovado</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apontamentoList">
+                        <!-- Apontamentos serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/apontamento";
+    const atividadeUrl = "http://localhost:8081/atividade";
+    const funcionarioUrl = "http://localhost:8081/funcionario";
+    const feriadoUrl = "http://localhost:8081/feriado";
+    let apontamentoEditando = null;
+    let feriadosCache = [];
+
+    function carregarAtividades() {
+        fetch(atividadeUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("atividade");
+                select.innerHTML = "";
+                data.forEach(atividade => {
+                    const option = document.createElement("option");
+                    option.value = atividade.id_atividade;
+                    option.textContent = `${atividade.descricao.substring(0, 30)}${atividade.descricao.length > 30 ? '...' : ''}`;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarFuncionarios() {
+        fetch(funcionarioUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("funcionario");
+                select.innerHTML = "";
+                data.forEach(funcionario => {
+                    const option = document.createElement("option");
+                    option.value = funcionario.id_funcionario;
+                    option.textContent = `${funcionario.nome}`;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarFeriados() {
+        fetch(feriadoUrl)
+            .then(res => res.json())
+            .then(data => {
+                feriadosCache = data;
+                const select = document.getElementById("feriado");
+                select.innerHTML = '<option value="">Nenhum</option>';
+                data.forEach(feriado => {
+                    const option = document.createElement("option");
+                    option.value = feriado.id_feriado;
+                    option.textContent = `${feriado.nomeFeriado || feriado.nome_feriado}`;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarApontamentos() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const apontamentoList = document.getElementById("apontamentoList");
+                apontamentoList.innerHTML = "";
+
+                if (!data.length) {
+                    apontamentoList.innerHTML = `<tr><td colspan="11" class="text-center text-muted py-4">Nenhum apontamento cadastrado.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(apontamento => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${apontamento.id_apontamento}</td>
+                        <td style="color:#555;">${apontamento.atividade ? apontamento.atividade.descricao.substring(0, 30) : ''}</td>
+                        <td style="color:#555;">${apontamento.funcionario ? apontamento.funcionario.nome : ''}</td>
+                        <td style="color:#555;">${apontamento.feriado ? (apontamento.feriado.nomeFeriado || apontamento.feriado.nome_feriado) : 'Nenhum'}</td>
+                        <td style="color:#555;">${apontamento.data_apontamento}</td>
+                        <td style="color:#555;">${apontamento.hora_inicio}</td>
+                        <td style="color:#555;">${apontamento.hora_fim}</td>
+                        <td style="color:#555;">${apontamento.centro_de_custo || '-'}</td>
+                        <td style="color:#555;">${apontamento.data_preenchimento}</td>
+                        <td style="color:#555;">${apontamento.aprovado ? 'Sim' : 'Não'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarApontamento(${apontamento.id_apontamento})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarApontamento(${apontamento.id_apontamento})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    apontamentoList.appendChild(tr);
+                });
+            });
+    }
+
+    function deletarApontamento(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarApontamentos());
+    }
+
+    function editarApontamento(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(apontamento => {
+                apontamentoEditando = apontamento.id_apontamento;
+                document.getElementById("hora_inicio").value = apontamento.hora_inicio;
+                document.getElementById("hora_fim").value = apontamento.hora_fim;
+                document.getElementById("centro_de_custo").value = apontamento.centro_de_custo || "";
+                document.getElementById("data_apontamento").value = apontamento.data_apontamento;
+                document.getElementById("data_preenchimento").value = apontamento.data_preenchimento;
+                document.getElementById("aprovado").value = apontamento.aprovado ? "true" : "false";
+                document.getElementById("atividade").value = apontamento.atividade ? apontamento.atividade.id_atividade : "";
+                document.getElementById("funcionario").value = apontamento.funcionario ? apontamento.funcionario.id_funcionario : "";
+                document.getElementById("feriado").value = apontamento.feriado ? apontamento.feriado.id_feriado : "";
+
+                document.getElementById("formTitle").textContent = "Editar Apontamento";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    function isValidDate(dateStr) {
+        return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+    }
+
+    function padTime(val) {
+        return val.length === 5 ? val + ":00" : val;
+    }
+
+    document.getElementById("apontamentoForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const hora_inicio = document.getElementById("hora_inicio").value;
+        const hora_fim = document.getElementById("hora_fim").value;
+        const data_apontamento = document.getElementById("data_apontamento").value;
+        const data_preenchimento = document.getElementById("data_preenchimento").value;
+
+        if (!hora_inicio || !hora_fim || !data_apontamento || !data_preenchimento) {
+            alert("Preencha todos os campos obrigatórios.");
+            return;
+        }
+
+        if (!isValidDate(data_apontamento) || !isValidDate(data_preenchimento)) {
+            alert("As datas devem estar no formato AAAA-MM-DD.");
+            return;
+        }
+
+        if (!/^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/.test(hora_inicio) || !/^\d{2}:\d{2}$|^\d{2}:\d{2}:\d{2}$/.test(hora_fim)) {
+            alert("As horas devem estar no formato HH:mm ou HH:mm:ss.");
+            return;
+        }
+
+        const feriadoValue = document.getElementById("feriado").value;
+        if (feriadoValue) {
+            const feriadoSelecionado = feriadosCache.find(f => f.id_feriado == feriadoValue);
+            if (feriadoSelecionado && feriadoSelecionado.permiteLancamento === false) {
+                alert("Não é permitido lançar apontamento neste feriado.");
+                return;
+            }
+        }
+
+        const apontamento = {
+            hora_inicio: padTime(hora_inicio),
+            hora_fim: padTime(hora_fim),
+            centro_de_custo: document.getElementById("centro_de_custo").value,
+            data_apontamento: data_apontamento,
+            data_preenchimento: data_preenchimento,
+            aprovado: document.getElementById("aprovado").value === "true",
+            atividade: { id_atividade: parseInt(document.getElementById("atividade").value) },
+            funcionario: { id_funcionario: parseInt(document.getElementById("funcionario").value) }
+        };
+
+        if (feriadoValue) {
+            apontamento.feriado = { id_feriado: parseInt(feriadoValue) };
+        }
+
+        const method = apontamentoEditando ? "PUT" : "POST";
+        const url = apontamentoEditando ? `${apiUrl}/${apontamentoEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(apontamento)
+        }).then(res => {
+            if (res.ok) {
+                carregarApontamentos();
+                this.reset();
+                apontamentoEditando = null;
+                document.getElementById("submitBtnText").textContent = "Cadastrar";
+                document.getElementById("formTitle").textContent = "Novo Apontamento";
+                document.getElementById("cancelarBtn").classList.add("d-none");
+            } else {
+                res.text().then(msg => alert("Erro ao salvar: " + msg));
+            }
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("apontamentoForm").reset();
+        apontamentoEditando = null;
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("formTitle").textContent = "Novo Apontamento";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    // Carregar selects e lista ao abrir a página
+    window.onload = function() {
+        carregarAtividades();
+        carregarFuncionarios();
+        carregarFeriados();
+        carregarApontamentos();
+    };
+</script>
+<style>
+    .apontamentos-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .apontamento-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .apontamento-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .apontamento-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .apontamento-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .apontamento-form-card .form-control, .apontamento-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .apontamento-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .apontamento-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .apontamento-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .apontamento-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .apontamentos-list-card { padding: 1rem; }
+        .apontamento-form-card .card-body { padding: 1rem; }
+    }
+</style>
+</body>
+</html>

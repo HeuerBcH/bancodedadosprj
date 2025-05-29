@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estratégica Engenharia - Contratos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <div class="card shadow-sm mb-5 contrato-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-file-contract me-2"></i><span id="formTitle">Novo Contrato</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <form id="contratoForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="obj_contratado" class="form-label">Objeto Contratado</label>
+                            <input type="text" class="form-control" id="obj_contratado" required maxlength="255">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data_inicio" class="form-label">Data Início</label>
+                            <input type="date" class="form-control" id="data_inicio" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data_fim" class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" id="data_fim" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="estado" class="form-label">Estado</label>
+                            <input type="text" class="form-control" id="estado" required maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cliente" class="form-label">Cliente</label>
+                            <select class="form-select" id="cliente" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="funcionario" class="form-label">Funcionário</label>
+                            <select class="form-select" id="funcionario" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="gestor" class="form-label">Gestor</label>
+                            <select class="form-select" id="gestor" required></select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="listaContratos" class="contratos-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE CONTRATOS</b></h3>
+                <a href="/contrato-dashboard.html" class="btn btn-outline-primary" style="color:#004D40; border-color:#004D40;">
+                    <i class="fas fa-chart-bar me-1"></i> Dashboard
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">ID</th>
+                            <th style="color:#fff;">Objeto</th>
+                            <th style="color:#fff;">Início</th>
+                            <th style="color:#fff;">Fim</th>
+                            <th style="color:#fff;">Estado</th>
+                            <th style="color:#fff;">Cliente</th>
+                            <th style="color:#fff;">Funcionário</th>
+                            <th style="color:#fff;">Gestor</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contratoList">
+                        <!-- Contratos serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    const apiUrl = "http://localhost:8081/contrato";
+    const clienteUrl = "http://localhost:8081/cliente";
+    const funcionarioUrl = "http://localhost:8081/funcionario";
+    const gestorUrl = "http://localhost:8081/gestor";
+    let contratoEditando = null;
+
+    function carregarClientes() {
+        fetch(clienteUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("cliente");
+                select.innerHTML = "";
+                data.forEach(cliente => {
+                    const option = document.createElement("option");
+                    option.value = cliente.id_cliente;
+                    option.textContent = cliente.nome_cliente;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarFuncionarios() {
+        fetch(funcionarioUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("funcionario");
+                select.innerHTML = "";
+                data.forEach(funcionario => {
+                    const option = document.createElement("option");
+                    option.value = funcionario.id_funcionario;
+                    option.textContent = funcionario.nome;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarGestores() {
+        fetch(gestorUrl)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("gestor");
+                select.innerHTML = "";
+                data.forEach(gestor => {
+                    const option = document.createElement("option");
+                        option.value = gestor.idGestor;
+                        option.textContent = gestor.grupoGerido;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    function carregarContratos() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const contratoList = document.getElementById("contratoList");
+                contratoList.innerHTML = "";
+
+                if (!data.length) {
+                    contratoList.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">Nenhum contrato cadastrado.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(contrato => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${contrato.id_contrato}</td>
+                        <td style="color:#555;">${contrato.obj_contratado}</td>
+                        <td style="color:#555;">${contrato.data_inicio}</td>
+                        <td style="color:#555;">${contrato.data_fim}</td>
+                        <td style="color:#555;">${contrato.estado}</td>
+                        <td style="color:#555;">${contrato.cliente ? contrato.cliente.nome_cliente : ''}</td>
+                        <td style="color:#555;">${contrato.funcionario ? contrato.funcionario.nome : ''}</td>
+                        <td style="color:#555;">${contrato.gestor ? contrato.gestor.grupoGerido : ''}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarContrato(${contrato.id_contrato})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarContrato(${contrato.id_contrato})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    contratoList.appendChild(tr);
+                });
+            });
+    }
+
+    function deletarContrato(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarContratos());
+    }
+
+    function editarContrato(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(contrato => {
+                contratoEditando = contrato.id_contrato;
+                document.getElementById("obj_contratado").value = contrato.obj_contratado;
+                document.getElementById("data_inicio").value = contrato.data_inicio;
+                document.getElementById("data_fim").value = contrato.data_fim;
+                document.getElementById("estado").value = contrato.estado;
+                document.getElementById("cliente").value = contrato.cliente ? contrato.cliente.id_cliente : "";
+                document.getElementById("funcionario").value = contrato.funcionario ? contrato.funcionario.id_funcionario : "";
+                document.getElementById("gestor").value = contrato.gestor ? contrato.gestor.id_gestor : "";
+
+                document.getElementById("formTitle").textContent = "Editar Contrato";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("contratoForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const contrato = {
+            obj_contratado: document.getElementById("obj_contratado").value,
+            data_inicio: document.getElementById("data_inicio").value,
+            data_fim: document.getElementById("data_fim").value,
+            estado: document.getElementById("estado").value,
+            cliente: { id_cliente: parseInt(document.getElementById("cliente").value) },
+            funcionario: { id_funcionario: parseInt(document.getElementById("funcionario").value) },
+            gestor: { id_gestor: parseInt(document.getElementById("gestor").value) }
+        };
+
+        const method = contratoEditando ? "PUT" : "POST";
+        const url = contratoEditando ? `${apiUrl}/${contratoEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(contrato)
+        }).then(res => {
+            if (res.ok) {
+                carregarContratos();
+                this.reset();
+                contratoEditando = null;
+                document.getElementById("submitBtnText").textContent = "Cadastrar";
+                document.getElementById("formTitle").textContent = "Novo Contrato";
+                document.getElementById("cancelarBtn").classList.add("d-none");
+            } else {
+                res.text().then(msg => alert("Erro ao salvar: " + msg));
+            }
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("contratoForm").reset();
+        contratoEditando = null;
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("formTitle").textContent = "Novo Contrato";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    // Carregar selects e lista ao abrir a página
+    window.onload = function() {
+        carregarClientes();
+        carregarFuncionarios();
+        carregarGestores();
+        carregarContratos();
+    };
+</script>
+<style>
+    .contratos-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .contrato-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .contrato-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .contrato-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .contrato-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .contrato-form-card .form-control, .contrato-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .contrato-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .contrato-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .contrato-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .contrato-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .contratos-list-card { padding: 1rem; }
+        .contrato-form-card .card-body { padding: 1rem; }
+    }
+</style>
+</body>
+</html>

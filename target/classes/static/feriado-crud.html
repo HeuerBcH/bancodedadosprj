@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estratégica Engenharia - Feriados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <div class="card shadow-sm mb-5 feriado-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-umbrella-beach me-2"></i><span id="formTitle">Novo Feriado</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <form id="feriadoForm">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="id_feriado" class="form-label">ID</label>
+                            <input type="number" class="form-control" id="id_feriado" placeholder="ID do Feriado" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="nome_feriado" class="form-label">Nome do Feriado</label>
+                            <input type="text" class="form-control" id="nome_feriado" placeholder="Nome do Feriado" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="data_feriado" class="form-label">Data</label>
+                            <input type="date" class="form-control" id="data_feriado" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="permite_lancamento" class="form-label">Permite Lançamento?</label>
+                            <select class="form-select" id="permite_lancamento" required>
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="true">Sim</option>
+                                <option value="false">Não</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="listaFeriados" class="feriados-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE FERIADOS</b></h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">ID</th>
+                            <th style="color:#fff;">Nome</th>
+                            <th style="color:#fff;">Data</th>
+                            <th style="color:#fff;">Permite Lançamento</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feriadoList">
+                        <!-- Feriados serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/feriado";
+    let feriadoEditando = null;
+
+    function carregarFeriados() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const feriadoList = document.getElementById("feriadoList");
+                feriadoList.innerHTML = "";
+
+                if (!data.length) {
+                    feriadoList.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Nenhum feriado cadastrado.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(feriado => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${feriado.idFeriado ?? feriado.id_feriado}</td>
+                        <td style="color:#555;">${feriado.nomeFeriado ?? feriado.nome_feriado}</td>
+                        <td style="color:#555;">${feriado.dataFeriado ?? feriado.data_feriado}</td>
+                        <td style="color:#555;">${(feriado.permiteLancamento ?? feriado.permite_lancamento) ? 'Sim' : 'Não'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarFeriado(${feriado.idFeriado ?? feriado.id_feriado})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarFeriado(${feriado.idFeriado ?? feriado.id_feriado})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    feriadoList.appendChild(tr);
+                });
+            });
+    }
+
+    function deletarFeriado(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarFeriados());
+    }
+
+    function editarFeriado(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(feriado => {
+                feriadoEditando = feriado.idFeriado ?? feriado.id_feriado;
+                document.getElementById("id_feriado").value = feriado.idFeriado ?? feriado.id_feriado;
+                document.getElementById("id_feriado").readOnly = true;
+                document.getElementById("nome_feriado").value = feriado.nomeFeriado ?? feriado.nome_feriado;
+                document.getElementById("data_feriado").value = feriado.dataFeriado ?? feriado.data_feriado;
+                document.getElementById("permite_lancamento").value = (feriado.permiteLancamento ?? feriado.permite_lancamento) ? "true" : "false";
+
+                document.getElementById("formTitle").textContent = "Editar Feriado";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("feriadoForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const feriado = {
+            idFeriado: parseInt(document.getElementById("id_feriado").value),
+            nomeFeriado: document.getElementById("nome_feriado").value,
+            dataFeriado: document.getElementById("data_feriado").value,
+            permiteLancamento: document.getElementById("permite_lancamento").value === "true"
+        };
+
+        const method = feriadoEditando ? "PUT" : "POST";
+        const url = feriadoEditando ? `${apiUrl}/${feriadoEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(feriado)
+        }).then(() => {
+            carregarFeriados();
+            this.reset();
+            feriadoEditando = null;
+            document.getElementById("id_feriado").readOnly = false;
+            document.getElementById("formTitle").textContent = "Novo Feriado";
+            document.getElementById("submitBtnText").textContent = "Cadastrar";
+            document.getElementById("cancelarBtn").classList.add("d-none");
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("feriadoForm").reset();
+        feriadoEditando = null;
+        document.getElementById("id_feriado").readOnly = false;
+        document.getElementById("formTitle").textContent = "Novo Feriado";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarFeriados;
+</script>
+<style>
+    .feriados-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .feriado-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .feriado-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .feriado-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .feriado-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .feriado-form-card .form-control, .feriado-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .feriado-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .feriado-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .feriado-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .feriado-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .feriados-list-card { padding: 1rem; }
+        .feriado-form-card .card-body { padding: 1rem; }
+    }
+</style>
+</body>
+</html>

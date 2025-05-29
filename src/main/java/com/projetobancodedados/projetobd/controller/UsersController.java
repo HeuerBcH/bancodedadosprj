@@ -1,23 +1,29 @@
 package com.projetobancodedados.projetobd.controller;
 
+import com.projetobancodedados.projetobd.model.Funcionario;
 import com.projetobancodedados.projetobd.model.Users;
+import com.projetobancodedados.projetobd.repository.FuncionarioRepository;
 import com.projetobancodedados.projetobd.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 //Define que essa classe é um controlador REST
 @RestController
 //Define a URL base para todos os endpoints desse controlador
 @RequestMapping("/users")
-
 public class UsersController {
 
     // Injeta automaticamente o repositório no controlador
     @Autowired
     private UsersRepository usersRepository;
+    
+    @Autowired
+    private FuncionarioRepository funcionarioRepository;
     
     // Retorna a lista de todos os usuários
     @GetMapping
@@ -35,8 +41,16 @@ public class UsersController {
     
     // Cria um novo usuário
     @PostMapping
-    public Users createUser(@RequestBody Users user) {
-        return usersRepository.save(user);
+    public ResponseEntity<Users> createUser(@RequestBody Users usuario) {
+        Users novoUsuario = usersRepository.save(usuario);
+
+        // Cria e salva o funcionário correspondente
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNome(novoUsuario.getUsername());
+        funcionario.setFkUsersIdUser(novoUsuario.getId_user());
+        funcionarioRepository.save(funcionario);
+
+        return ResponseEntity.ok(novoUsuario);
     }
     
     // Atualiza os dados de um usuário existente
@@ -67,4 +81,23 @@ public class UsersController {
             .orElse(ResponseEntity.notFound().build());
     }
 	
+	// Usuários por setor
+    @GetMapping("/count-by-setor")
+    public Map<String, Long> countBySetor() {
+        return usersRepository.findAll().stream()
+            .collect(Collectors.groupingBy(Users::getSetor, Collectors.counting()));
+    }
+
+    @GetMapping("/count-by-ccpadrao")
+    public Map<Integer, Long> countByCcpadrao() {
+        return usersRepository.findAll().stream()
+            .collect(Collectors.groupingBy(Users::getCcpadrao, Collectors.counting()));
+    }
+
+    // Usuários por nível (admin/comum)
+    @GetMapping("/count-by-nivel")
+    public Map<String, Long> countByNivel() {
+        return usersRepository.findAll().stream()
+            .collect(Collectors.groupingBy(u -> u.isNivel() ? "Admin" : "Usuário", Collectors.counting()));
+    }
 }

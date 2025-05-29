@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estratégica Engenharia - Gestores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <div class="card shadow-sm mb-5 gestor-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-user-tie me-2"></i><span id="formTitle">Novo Gestor</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <div class="alert alert-warning" id="avisoFuncionario" style="display: block;">
+                    <strong>Atenção:</strong> O <b>ID do Gestor</b> deve ser igual ao <b>ID de um Funcionário já cadastrado</b>. Caso contrário, ocorrerá erro!
+                </div>
+                <form id="gestorForm" autocomplete="off">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="id_gestor" class="form-label">ID do Gestor</label>
+                            <input type="number" class="form-control" id="id_gestor" placeholder="ID do Gestor" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="grupo_gerido" class="form-label">Grupo Gerido</label>
+                            <input type="text" class="form-control" id="grupo_gerido" placeholder="Grupo Gerido" maxlength="30" required>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="listaGestores" class="gestores-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE GESTORES</b></h3>
+
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th style="color:#fff;">ID</th>
+                            <th style="color:#fff;">Grupo Gerido</th>
+                            <th style="color:#fff;" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gestorList">
+                        <!-- Gestores serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8081/gestor";
+    let gestorEditando = null;
+
+    function carregarGestores() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const gestorList = document.getElementById("gestorList");
+                gestorList.innerHTML = "";
+
+                if (!data.length) {
+                    gestorList.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-4">Nenhum gestor cadastrado.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(gestor => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight:500; color:#222;">${gestor.idGestor}</td>
+                        <td style="color:#555;">${gestor.grupoGerido}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning me-2" onclick="editarGestor(${gestor.idGestor})" title="Editar" style="border-radius:6px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletarGestor(${gestor.idGestor})" title="Excluir" style="border-radius:6px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    gestorList.appendChild(tr);
+                });
+            });
+    }
+
+    function deletarGestor(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarGestores());
+    }
+
+    function editarGestor(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(gestor => {
+                gestorEditando = gestor.idGestor;
+                document.getElementById("id_gestor").value = gestor.idGestor;
+                document.getElementById("id_gestor").readOnly = true;
+                document.getElementById("grupo_gerido").value = gestor.grupoGerido;
+
+                document.getElementById("formTitle").textContent = "Editar Gestor";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("gestorForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const gestor = {
+            idGestor: parseInt(document.getElementById("id_gestor").value),
+            grupoGerido: document.getElementById("grupo_gerido").value
+        };
+
+        const method = gestorEditando ? "PUT" : "POST";
+        const url = gestorEditando ? `${apiUrl}/${gestorEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(gestor)
+        })
+        .then(async response => {
+            if (!response.ok) {
+                const msg = await response.text();
+                alert(msg || "Erro ao salvar gestor. Verifique se o ID do gestor existe em Funcionario.");
+            }
+            return response.ok;
+        })
+        .then(ok => {
+            if (ok) {
+                carregarGestores();
+                this.reset();
+                gestorEditando = null;
+                document.getElementById("id_gestor").readOnly = false;
+                document.getElementById("formTitle").textContent = "Novo Gestor";
+                document.getElementById("submitBtnText").textContent = "Cadastrar";
+                document.getElementById("cancelarBtn").classList.add("d-none");
+            }
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("gestorForm").reset();
+        gestorEditando = null;
+        document.getElementById("id_gestor").readOnly = false;
+        document.getElementById("formTitle").textContent = "Novo Gestor";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarGestores;
+</script>
+<style>
+    .gestores-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .gestor-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .gestor-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .gestor-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .gestor-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .gestor-form-card .form-control, .gestor-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .gestor-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .gestor-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .gestor-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .gestor-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .gestores-list-card { padding: 1rem; }
+        .gestor-form-card .card-body { padding: 1rem; }
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estratégica Engenharia - Atividades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+
+        <div class="card shadow-sm mb-5 atividade-form-card">
+            <div class="card-header" style="border-radius: 12px 12px 0 0; font-size: 1.2rem; font-weight: 600; background: #004D40; color: #fff;">
+                <i class="fas fa-tasks me-2"></i><span id="formTitle">Nova Atividade</span>
+            </div>
+            <div class="card-body" style="background: #fff; border-radius: 0 0 12px 12px;">
+                <form id="atividadeForm" autocomplete="off">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="descricao" class="form-label" style="color:#004D40; font-weight:500;">Descrição da Atividade</label>
+                            <input type="text" class="form-control" id="descricao" placeholder="Descrição da Atividade" maxlength="400" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="interna" class="form-label" style="color:#004D40; font-weight:500;">Tipo</label>
+                            <select class="form-select" id="interna" required>
+                                <option value="true">Interna</option>
+                                <option value="false">Externa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success px-4" type="submit" id="submitBtn" style="background:#004D40; border:none;">
+                            <i class="fas fa-check me-1"></i> <span id="submitBtnText">Cadastrar</span>
+                        </button>
+                        <button id="cancelarBtn" type="button" class="btn btn-secondary ms-2 d-none px-4" onclick="cancelarEdicao()" style="background:#bdbdbd; color:#004D40; border:none;">
+                            <i class="fas fa-times me-1"></i> Cancelar Edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="listaAtividades" class="atividades-list-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 style="color:#004D40; font-weight: 500; margin-bottom:0;"><b>LISTA DE ATIVIDADES</b></h3>
+                <a href="/atividade-dashboard.html" class="btn btn-outline-primary" style="color:#004D40; border-color:#004D40;">
+                    <i class="fas fa-chart-bar me-1"></i> Dashboard
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-borderless" style="background: #fff;">
+                    <thead style="background: #004D40;">
+                        <tr style="border-bottom: 2px solid #ececec;">
+                            <th scope="col" style="font-weight: 500; color: #fff;">ID</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;">Descrição</th>
+                            <th scope="col" style="font-weight: 500; color: #fff;">Tipo</th>
+                            <th scope="col" class="text-center" style="font-weight: 500; color: #fff;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="atividadeList">
+                        <!-- Atividades serão inseridas aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    const apiUrl = "http://localhost:8081/atividade";
+    let atividadeEditando = null;
+    let atividadesCache = [];
+
+    function carregarAtividades() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                atividadesCache = data;
+                renderizarAtividades();
+            });
+    }
+
+    function renderizarAtividades() {
+        const atividadeList = document.getElementById("atividadeList");
+        atividadeList.innerHTML = "";
+
+        if (!atividadesCache.length) {
+            atividadeList.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma atividade cadastrada.</td></tr>`;
+            return;
+        }
+
+        atividadesCache.forEach(atividade => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="font-weight:500; color:#222;">${atividade.id_atividade}</td>
+                <td style="color:#555;">${atividade.descricao}</td>
+                <td>
+                    <span class="atividade-badge ${atividade.interna ? 'interna' : 'externa'}">
+                        ${atividade.interna ? 'Interna' : 'Externa'}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-warning me-2" onclick="editarAtividade(${atividade.id_atividade})" title="Editar" style="border-radius:6px;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletarAtividade(${atividade.id_atividade})" title="Excluir" style="border-radius:6px;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            atividadeList.appendChild(tr);
+        });
+    }
+
+    function deletarAtividade(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        }).then(() => carregarAtividades());
+    }
+
+    function editarAtividade(id) {
+        fetch(`${apiUrl}/${id}`)
+            .then(res => res.json())
+            .then(atividade => {
+                atividadeEditando = atividade.id_atividade;
+                document.getElementById("descricao").value = atividade.descricao;
+                document.getElementById("interna").value = atividade.interna.toString();
+
+                document.getElementById("formTitle").textContent = "Editar Atividade";
+                document.getElementById("submitBtnText").textContent = "Atualizar";
+                document.getElementById("cancelarBtn").classList.remove("d-none");
+            });
+    }
+
+    document.getElementById("atividadeForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const atividade = {
+            descricao: document.getElementById("descricao").value,
+            interna: document.getElementById("interna").value === "true"
+        };
+
+        const method = atividadeEditando ? "PUT" : "POST";
+        const url = atividadeEditando ? `${apiUrl}/${atividadeEditando}` : apiUrl;
+
+        fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(atividade)
+        }).then(() => {
+            carregarAtividades();
+            this.reset();
+            atividadeEditando = null;
+
+            document.getElementById("formTitle").textContent = "Nova Atividade";
+            document.getElementById("submitBtnText").textContent = "Cadastrar";
+            document.getElementById("cancelarBtn").classList.add("d-none");
+        });
+    });
+
+    function cancelarEdicao() {
+        document.getElementById("atividadeForm").reset();
+        atividadeEditando = null;
+
+        document.getElementById("formTitle").textContent = "Nova Atividade";
+        document.getElementById("submitBtnText").textContent = "Cadastrar";
+        document.getElementById("cancelarBtn").classList.add("d-none");
+    }
+
+    // Carregar lista automaticamente ao abrir a página
+    window.onload = carregarAtividades;
+</script>
+<style>
+    .atividades-list-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .atividade-badge.interna {
+        background: #004D40;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 12px;
+        padding: 0.25rem 0.75rem;
+    }
+    .atividade-badge.externa {
+        background: #bdbdbd;
+        color: #004D40;
+        font-weight: 500;
+        border-radius: 12px;
+        padding: 0.25rem 0.75rem;
+    }
+    .atividade-form-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        padding: 0;
+        margin-bottom: 2rem;
+        border: none;
+    }
+    .atividade-form-card .card-header {
+        border-bottom: 1px solid #ececec;
+        background: #004D40 !important;
+        color: #fff !important;
+        border-radius: 12px 12px 0 0;
+    }
+    .atividade-form-card .card-body {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+    }
+    .atividade-form-card .form-label {
+        color: #004D40;
+        font-weight: 500;
+    }
+    .atividade-form-card .form-control, .atividade-form-card .form-select {
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #ececec;
+        font-size: 1rem;
+        color: #004D40;
+    }
+    .atividade-form-card .btn-success {
+        background: #004D40;
+        border: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        color: #fff;
+    }
+    .atividade-form-card .btn-success:hover {
+        background: #02695a;
+    }
+    .atividade-form-card .btn-secondary {
+        background: #bdbdbd;
+        border: none;
+        font-weight: 600;
+        color: #004D40;
+    }
+    .atividade-form-card .btn-secondary:hover {
+        background: #9e9e9e;
+        color: #fff;
+    }
+    @media (max-width: 700px) {
+        .atividades-list-card { padding: 1rem; }
+        .atividade-form-card .card-body { padding: 1rem; }
+    }
+</style>
+</body>
+</html>

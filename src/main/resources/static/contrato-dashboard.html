@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Contratos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: #f6f8f7;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .main-dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 1rem 2rem 1rem;
+        }
+        .dashboard-header {
+            color: #004D40;
+            font-weight: 700;
+            letter-spacing: 1px;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .stat-box {
+            background: #004D40;
+            color: #fff;
+            border-radius: 12px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            margin-bottom: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .stat-box .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #ff9800;
+            margin-bottom: 0.2rem;
+        }
+        .stat-box .stat-label {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 500;
+        }
+        .chart-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem 1rem 1rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .chart-title {
+            color: #004D40;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .row.g-4.mb-4 {
+            margin-bottom: 2.2rem !important;
+        }
+        .row.g-4 {
+            --bs-gutter-x: 2.5rem;
+            --bs-gutter-y: 2.5rem;
+        }
+        @media (max-width: 1200px) {
+            .main-dashboard-container {
+                max-width: 100%;
+                padding: 2rem 0.5rem 2rem 0.5rem;
+            }
+            .row.g-4 {
+                --bs-gutter-x: 1.2rem;
+                --bs-gutter-y: 1.2rem;
+            }
+        }
+        @media (max-width: 900px) {
+            .stat-box { font-size: 0.95rem; }
+            .stat-box .stat-value { font-size: 1.5rem; }
+            .main-dashboard-container { padding: 1rem 0.2rem 1rem 0.2rem; }
+        }
+        @media (max-width: 700px) {
+            .main-dashboard-container { padding: 0.5rem 0.1rem 1rem 0.1rem; }
+            .row.g-4 { --bs-gutter-x: 0.5rem; --bs-gutter-y: 1rem; }
+            .stat-box { min-height: 90px; }
+            .chart-container { padding: 1rem 0.2rem 0.5rem 0.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <a href="/inicio.html">
+                <img src="/media/imagens/estrategicalogo.png" alt="Logo Estratégica Engenharia" class="logo-img">
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/contrato-crud.html"><i class="fas fa-file-contract"></i> Contrato</a>
+            <a href="/cliente-crud.html"><i class="fas fa-user"></i> Cliente</a>
+            <a href="/atividade-crud.html"><i class="fas fa-tasks"></i> Atividade</a>
+            <a href="/users-crud.html"><i class="fas fa-users-cog"></i> Usuários</a>
+            <a href="/gestor-crud.html"><i class="fas fa-user-tie"></i> Gestor</a>
+            <a href="/funcionario-crud.html"><i class="fas fa-user-friends"></i> Funcionários</a>
+            <a href="/apontamento-crud.html"><i class="fas fa-clipboard-list"></i> Apontamento</a>
+            <a href="/escala-de-trabalho-crud.html"><i class="fas fa-calendar-alt"></i> Escala de Trabalho</a>
+            <a href="/funcionario-escala-crud.html"><i class="fas fa-user-clock"></i> Funcionários Escala</a>
+            <a href="/feriado-crud.html"><i class="fas fa-umbrella-beach"></i> Feriados</a>
+        </nav>
+    </aside>
+    <main class="content">
+        <div class="main-dashboard-container">
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-box h-100">
+                        <div class="stat-label">Total de Contratos</div>
+                        <div class="stat-value" id="totalContratos">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-box h-100">
+                        <div class="stat-label">Contratos Ativos</div>
+                        <div class="stat-value" id="ativos">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-box h-100">
+                        <div class="stat-label">Contratos Vencidos</div>
+                        <div class="stat-value" id="vencidos">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-box h-100">
+                        <div class="stat-label">Valor Médio</div>
+                        <div class="stat-value" id="valorMedio">-</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6 d-flex">
+                    <div class="chart-container w-100">
+                        <div class="chart-title">Contratos por Situação</div>
+                        <canvas id="graficoSituacao"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-flex">
+                    <div class="chart-container w-100">
+                        <div class="chart-title">Contratos por Cliente (Top 5)</div>
+                        <canvas id="graficoClientes"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4 mt-2">
+                <div class="col-lg-6 d-flex">
+                    <div class="chart-container w-100">
+                        <div class="chart-title">Contratos por Funcionário</div>
+                        <canvas id="graficoFuncionario"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-flex">
+                    <div class="chart-container w-100">
+                        <div class="chart-title">Contratos por Ano</div>
+                        <canvas id="graficoAno"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    const API_BASE = '/contrato';
+
+    function gerarCores(qtd) {
+        const cores = [
+            '#ff9800', '#004D40', '#2196f3', '#4caf50', '#e91e63', '#9c27b0', '#00bcd4', '#ffc107', '#8bc34a', '#f44336',
+            '#607d8b', '#3f51b5', '#009688', '#cddc39', '#ff5722', '#795548', '#673ab7', '#bdbdbd', '#ffb300', '#43a047'
+        ];
+        let arr = [];
+        for (let i = 0; i < qtd; i++) arr.push(cores[i % cores.length]);
+        return arr;
+    }
+
+    function criarGrafico(id, labels, data, label, tipo = 'bar', options = {}) {
+        const ctx = document.getElementById(id);
+        if (ctx.chartInstance) ctx.chartInstance.destroy();
+        ctx.chartInstance = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: gerarCores(labels.length),
+                    borderColor: '#004D40',
+                    borderWidth: 2
+                }]
+            },
+            options: Object.assign({
+                responsive: true,
+                plugins: {
+                    legend: { display: tipo !== 'bar' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.parsed.y ?? context.parsed}`;
+                            }
+                        }
+                    }
+                },
+                layout: { padding: 0 },
+                scales: tipo === 'bar' || tipo === 'line' ? {
+                    y: { beginAtZero: true, ticks: { color: '#004D40', font: { weight: 600 } } },
+                    x: { ticks: { color: '#004D40', font: { weight: 600 } } }
+                } : {}
+            }, options)
+        });
+    }
+
+    function carregarEstatisticas() {
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(contratos => {
+                document.getElementById('totalContratos').textContent = contratos.length;
+
+                let ativos = 0, vencidos = 0, soma = 0;
+                const hoje = new Date();
+                contratos.forEach(c => {
+                    soma += Number(c.valor || 0);
+                    if (c.estado && c.estado.toLowerCase() === 'ativo') ativos++;
+                    const fim = new Date(c.data_fim || c.dataFim);
+                    if (fim < hoje) vencidos++;
+                });
+                document.getElementById('ativos').textContent = ativos;
+                document.getElementById('vencidos').textContent = vencidos;
+                document.getElementById('valorMedio').textContent = contratos.length ? 'R$ ' + (soma / contratos.length).toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
+            });
+    }
+
+    function carregarGraficos() {
+        // Contratos por Situação
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(contratos => {
+                const situacoes = {};
+                contratos.forEach(c => {
+                    const sit = c.estado || 'Indefinido';
+                    situacoes[sit] = (situacoes[sit] || 0) + 1;
+                });
+                criarGrafico('graficoSituacao', Object.keys(situacoes), Object.values(situacoes), 'Situação', 'pie');
+            });
+
+        // Contratos por Cliente (Top 5)
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(contratos => {
+                const clientes = {};
+                contratos.forEach(c => {
+                    const nome = c.cliente && c.cliente.nome_cliente ? c.cliente.nome_cliente : 'Indefinido';
+                    clientes[nome] = (clientes[nome] || 0) + 1;
+                });
+                const top = Object.entries(clientes).sort((a,b) => b[1]-a[1]).slice(0,5);
+                criarGrafico('graficoClientes', top.map(e=>e[0]), top.map(e=>e[1]), 'Clientes', 'bar', {indexAxis:'y'});
+            });
+
+        // Contratos por Funcionário
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(contratos => {
+                const funcionarios = {};
+                contratos.forEach(c => {
+                    const nome = c.funcionario && c.funcionario.nome ? c.funcionario.nome : 'Indefinido';
+                    funcionarios[nome] = (funcionarios[nome] || 0) + 1;
+                });
+                criarGrafico('graficoFuncionario', Object.keys(funcionarios), Object.values(funcionarios), 'Funcionário', 'bar', {indexAxis:'y'});
+            });
+
+        // Contratos por Ano
+        fetch(API_BASE)
+            .then(res => res.json())
+            .then(contratos => {
+                const anos = {};
+                contratos.forEach(c => {
+                    let ano = '';
+                    if (c.data_inicio) {
+                        ano = new Date(c.data_inicio).getFullYear();
+                    } else if (c.dataInicio) {
+                        ano = new Date(c.dataInicio).getFullYear();
+                    }
+                    if (ano) anos[ano] = (anos[ano] || 0) + 1;
+                });
+                const anosOrdenados = Object.keys(anos).sort();
+                criarGrafico('graficoAno', anosOrdenados, anosOrdenados.map(a=>anos[a]), 'Ano', 'line');
+            });
+    }
+
+    carregarEstatisticas();
+    carregarGraficos();
+</script>
+</body>
+</html>

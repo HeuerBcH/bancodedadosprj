@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Gestão Empresarial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" type="text/css" th:href="@{/css/paginaLogin.css}">
+    <link rel="stylesheet" href="/login.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+</head>
+<body>
+
+<header>
+    <img src="/media/imagens/estrategicalogo.png" alt="Estrategica" class="logo-imagem">
+</header>
+
+<main>
+    <form id="loginForm" class="form-login" autocomplete="off">
+        <div class="welcome-message">
+
+            <br>
+        </div>
+        <div id="mensagem-erro" class="mensagem-erro" style="display:none;"></div>
+
+        <div class="campo">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="username">
+        </div>
+
+        <div class="campo">
+            <label for="senha">Senha</label>
+            <div class="campo-senha">
+                <input type="password" id="senha" name="senha" required autocomplete="current-password">
+                <span class="icone-senha" onclick="toggleSenha()">
+                    <i id="iconeOlho" class="fa-solid fa-eye"></i>
+                </span>
+            </div>
+        </div>
+
+        <button type="submit">Entrar</button>
+    </form>
+</main>
+
+<script>
+    function toggleSenha() {
+        const input = document.getElementById('senha');
+        const icone = document.getElementById('iconeOlho');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icone.classList.remove('fa-eye');
+            icone.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icone.classList.remove('fa-eye-slash');
+            icone.classList.add('fa-eye');
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const erroDiv = document.getElementById('mensagem-erro');
+        erroDiv.style.display = 'none';
+
+        try {
+            const resp = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+            if (resp.ok) {
+                window.location.href = '/inicio.html';
+            } else {
+                const msg = await resp.text();
+                erroDiv.textContent = msg || 'Email ou senha inválidos.';
+                erroDiv.style.display = 'block';
+            }
+        } catch (err) {
+            erroDiv.textContent = 'Erro ao conectar ao servidor.';
+            erroDiv.style.display = 'block';
+        }
+    });
+</script>
+
+</body>
+</html>

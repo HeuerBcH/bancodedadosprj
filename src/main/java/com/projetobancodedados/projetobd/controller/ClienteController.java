@@ -7,9 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cliente")
+@CrossOrigin(origins = "*") // Permite requisições do HTML
 public class ClienteController {
 
     @Autowired
@@ -55,5 +58,43 @@ public class ClienteController {
             clienteRepository.delete(cliente);
             return ResponseEntity.noContent().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // Endpoint para agregação por bairro
+    @GetMapping("/count-by-bairro")
+    public Map<String, Long> countByBairro() {
+        return clienteRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Cliente::getBairro, Collectors.counting()));
+    }
+
+    // Endpoint para agregação por estado
+    @GetMapping("/count-by-estado")
+    public Map<String, Long> countByEstado() {
+        return clienteRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Cliente::getEstado, Collectors.counting()));
+    }
+
+    // Endpoint para agregação por cidade
+    @GetMapping("/count-by-cidade")
+    public Map<String, Long> countByCidade() {
+        return clienteRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Cliente::getCidade, Collectors.counting()));
+    }
+
+    // Endpoint para agregação por CEP
+    @GetMapping("/count-by-cep")
+    public Map<String, Long> countByCep() {
+        return clienteRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Cliente::getCep, Collectors.counting()));
+    }
+
+    // Endpoint para agregação por domínio de email
+    @GetMapping("/count-by-email-domain")
+    public Map<String, Long> countByEmailDomain() {
+        return clienteRepository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                    c -> c.getEmail().substring(c.getEmail().indexOf("@") + 1),
+                    Collectors.counting()
+                ));
     }
 }

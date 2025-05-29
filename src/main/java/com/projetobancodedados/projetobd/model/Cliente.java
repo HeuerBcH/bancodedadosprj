@@ -1,12 +1,9 @@
 package com.projetobancodedados.projetobd.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 //Anotação que marca a classe como uma entidade JPA (será mapeada para uma tabela do banco de dados)
 @Entity
-//Gera automaticamente métodos como getters, setters, toString, equals e hashCode
-@Data
 
 public class Cliente {
 
