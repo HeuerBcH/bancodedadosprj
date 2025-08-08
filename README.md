@@ -2,7 +2,7 @@
 
 <br>
 
-## ✅ Como Inicializar?
+## ✅ Como Inicializar
 
 <p>1. Coloque o arquivo estrategicascript.sql e ScriptINSERT.sql no seu Workspace MySQL</p></p>
 
